@@ -10,6 +10,24 @@ export default {
   ],
   theme: {
     extend: {
+      fontSize: {
+        h1: "2em",
+        h2: "1.5em",
+        h3: "1.17em",
+        h4: "1em",
+        h5: "0.83em",
+        h6: "0.67em",
+        p: "1em",
+        a: "1em",
+        strong: "1em",
+        em: "1em",
+        small: "0.8em",
+        blockquote: "1.25em",
+        pre: "1em",
+        code: "0.9em",
+        sub: "0.75em",
+        sup: "0.75em",
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
