@@ -28,6 +28,12 @@ export default {
         sub: "0.75em",
         sup: "0.75em",
       },
+      fontFamily: {
+        sans: ["var(--font-outfit-sans)", "sans-serif"],
+        serif: ["var(--font-lora-serif)", "serif"],
+        mono: ["var(--font-ibm-plex-mono)", "monospace"],
+        logo: ["var(--font-ethnocentric)"],
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
