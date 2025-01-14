@@ -1,7 +1,7 @@
 import "./globals.css";
 import { ethnocentric, ibmPlexMono, loraSerif, outfitSans } from "@/assets/fonts/index.config";
-// import { ThemeProvider } from "@/components/theme-provider";
 import { SolanaWalletProvider } from "@/providers/solana-wallet-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -17,14 +17,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${outfitSans.variable} ${loraSerif.variable} ${ethnocentric.variable} ${ibmPlexMono.variable} antialiased`}>
-        {/* <ThemeProvider
+        className={`${outfitSans.variable} ${loraSerif.variable} ${ethnocentric.variable} ${ibmPlexMono.variable} font-sans antialiased`}>
+        <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange> */}
-        <SolanaWalletProvider>{children}</SolanaWalletProvider>
-        {/* </ThemeProvider> */}
+          disableTransitionOnChange>
+          <SolanaWalletProvider>{children}</SolanaWalletProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
