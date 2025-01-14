@@ -1,3 +1,4 @@
+import tailwindScrollbar from "tailwind-scrollbar";
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
@@ -10,6 +11,12 @@ export default {
   ],
   theme: {
     extend: {
+      width: {
+        "191": "47.75rem",
+      },
+      maxWidth: {
+        "191": "47.75rem",
+      },
       fontSize: {
         h1: "2em",
         h2: "1.5em",
@@ -27,6 +34,12 @@ export default {
         code: "0.9em",
         sub: "0.75em",
         sup: "0.75em",
+      },
+      fontFamily: {
+        sans: ["var(--font-outfit-sans)", "sans-serif"],
+        serif: ["var(--font-lora-serif)", "serif"],
+        mono: ["var(--font-ibm-plex-mono)", "monospace"],
+        logo: ["var(--font-ethnocentric)"],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -87,5 +100,5 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [tailwindcssAnimate, tailwindScrollbar],
 } satisfies Config;
