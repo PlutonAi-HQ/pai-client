@@ -55,9 +55,9 @@ export default function Home() {
     };
 
     try {
-      const serverUri = `${process.env.NEXT_PUBLIC_SERVER_URI}/agent/call`;
+      const serverUri = `${process.env.NEXT_PUBLIC_SERVER_URL}/agent/call`;
       if (!serverUri) {
-        throw new Error("SERVER_URI is not defined");
+        throw new Error("NEXT_PUBLIC_SERVER_URL is not defined");
       }
 
       const response = await fetch(serverUri, {
