@@ -31,9 +31,9 @@ export default function Home() {
     console.log(payload);
 
     try {
-      const serverUri = "https://pluton.bot-trade.orasci.site/api/agent/call";
+      const serverUri = `${process.env.NEXT_PUBLIC_SERVER_URL}/agent/call`;
       if (!serverUri) {
-        throw new Error("SERVER_URI is not defined");
+        throw new Error("NEXT_PUBLIC_SERVER_URL is not defined");
       }
       const response = await fetch(serverUri, {
         method: "POST",
