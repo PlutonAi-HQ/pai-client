@@ -26,7 +26,7 @@
 
 FROM node:20-slim AS base
 
-ARG NEXT_PUBLIC_SERVER_URL="https://pluton.bot-trade.orasci.site/api/agent/call"
+ARG NEXT_PUBLIC_SERVER_URL="https://api-beta.plutonai.fun"
 ENV NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
 # Install dependencies only when needed
 FROM base AS deps
