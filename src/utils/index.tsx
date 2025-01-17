@@ -19,3 +19,7 @@ export function parseAgentResponse(rawData: string): string {
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export function generateSessionId() {
+  return crypto.randomUUID();
+}
