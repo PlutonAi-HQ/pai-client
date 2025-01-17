@@ -3,7 +3,6 @@
 import useLocalStorage from "@/hooks/use-localstorage";
 import { generateSessionId } from "@/utils";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { PublicKey } from "@solana/web3.js";
 import { createContext, ReactNode, useCallback, useEffect, useState } from "react";
 
 export type Conversation = {
@@ -17,9 +16,16 @@ export type Chat = {
   isFetching: boolean;
   isAnswering: boolean;
   answeringText: string | null;
-  fetchConversation: ({ sessionId, userId }: { sessionId: string; userId: PublicKey }) => void;
+  conversationSessions: string[];
+  fetchConversation: ({ sessionId }: { sessionId: string }) => void;
   submitUserInput: (message: string) => void;
   createConversation: () => void;
+};
+
+type ConversationItem = {
+  role: string;
+  content: string;
+  session_id: string;
 };
 
 export const ConversationContext = createContext<Chat | null>(null);
@@ -33,12 +39,48 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
   const [isAnswering, setIsAnswering] = useState<boolean>(false);
   const [answeringText, setAnsweringText] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [conversationSessions, setConversationSessions] = useState<string[]>([]);
   const { getLocalValue, setLocalValue } = useLocalStorage();
 
-  const fetchConversation = useCallback(async ({ sessionId, userId }: { sessionId: string; userId: PublicKey }) => {
+  const fetchConversation = useCallback(
+    async ({ sessionId }: { sessionId: string }) => {
+      const payload = {
+        session_id: sessionId,
+        user_id: publicKey,
+      };
+
+      try {
+        setIsFetching(true);
+        const serverUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}`;
+        if (!serverUrl) throw new Error("Server URL are not defined");
+
+        const response = await fetch(serverUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch. Status: ${response.status}`);
+        }
+
+        const conversationHistory = await response.json();
+        setConversation(conversationHistory);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setIsFetching(false);
+      }
+    },
+    [publicKey],
+  );
+
+  const fetchConversationSessions = useCallback(async () => {
     const payload = {
-      session_id: sessionId,
-      user_id: userId,
+      user_id: publicKey,
     };
 
     try {
@@ -59,14 +101,17 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
         throw new Error(`Failed to fetch. Status: ${response.status}`);
       }
 
-      const conversationHistory = await response.json();
-      setConversation(conversationHistory);
+      const conversationSessionsHistory = await response.json();
+      const handledConversationSessionsHistory: string[] = Array.from(
+        new Set(conversationSessionsHistory.flat().map((item: ConversationItem) => item.session_id)),
+      );
+      setConversationSessions(handledConversationSessionsHistory);
     } catch (error) {
       console.error("Error:", error);
     } finally {
       setIsFetching(false);
     }
-  }, []);
+  }, [publicKey]);
 
   const submitUserInput = useCallback(
     async (message: string) => {
@@ -154,6 +199,10 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
   }, [setLocalValue]);
 
   useEffect(() => {
+    fetchConversationSessions();
+  }, [fetchConversationSessions]);
+
+  useEffect(() => {
     if (!sessionId) {
       const localSessionId = getLocalValue("session_id");
       if (!localSessionId) {
@@ -167,7 +216,6 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
     } else {
       fetchConversation({
         sessionId: sessionId,
-        userId: publicKey!,
       });
     }
   }, [fetchConversation, getLocalValue, publicKey, setLocalValue, sessionId]);
@@ -180,6 +228,7 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
         isFetching,
         isAnswering,
         answeringText,
+        conversationSessions,
         submitUserInput,
         fetchConversation,
         createConversation,
