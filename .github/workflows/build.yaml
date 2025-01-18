@@ -1,22 +1,19 @@
-name: Build & Push Docker Image
-run-name: Build and push ${{ github.event.inputs.tag}}
+name: CICD
 
 on:
-  workflow_dispatch: # Enable manual trigger
-    inputs:
-      tag:
-        description: "Docker image tag"
-        required: true
-        default: "v1.0"
-      image:
-        description: "Docker image name"
-        required: true
-        default: "ai-agent/pluton-client"
-
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+env:
+  IMAGE: ai-agent/pluton-client
 jobs:
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,11 +28,36 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: true
+      - name: Set Image tag
+        id: vars
+        run: echo "tag=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
-          tags: ${{ steps.login-ecr.outputs.registry }}/${{inputs.image}}:${{inputs.tag}}
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{env.IMAGE}}:${{steps.vars.outputs.tag}}
           push: true
           file: Dockerfile
+
+      - name: Checkout to pluton-infra
+        uses: actions/checkout@v4
+        with:
+          repository: PlutonAi-HQ/pluton-infra
+          ref: main
+          token: ${{ secrets.PAT_ACCESS_TOKEN }}
+      - name: Edit deployment
+        run: |
+          sed -i "s|image: .*pluton-client:.*|image: ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE }}:${{ steps.vars.outputs.tag }}|" deployment/pluton-client.yaml
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add deployment/pluton-client.yaml
+
+          git commit -m "chore(pluton-client): Update pluton-client image tag to ${{ steps.vars.outputs.tag }}"
+          git rebase
+          git push
