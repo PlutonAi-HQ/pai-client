@@ -1,3 +1,4 @@
+import LoginButton from "@/components/common/login-button";
 import Logo from "@/components/common/logo";
 import WalletButton from "@/components/common/wallet-button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ export default function BaseHeader() {
           100 Point <HeartIcon className="size-4 fill-yellow-500" />
         </button>
         <WalletButton />
+        {/* <LoginButton /> */}
       </div>
     </header>
   );

@@ -1,5 +1,5 @@
 {
-  "printWidth": 120,
+  "printWidth": 80,
   "tabWidth": 2,
   "semi": true,
   "singleQuote": false,
@@ -15,5 +15,8 @@
   "singleAttributePerLine": true,
   "tailwindFunctions": ["clsx"],
   "tailwindPreserveDuplicates": true,
-  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"]
+  "plugins": [
+    "@trivago/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss"
+  ]
 }
