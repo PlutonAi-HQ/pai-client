@@ -3,7 +3,7 @@
 import { SERVER_URL } from "@/configs/env.config";
 import useLocalStorage from "@/hooks/use-localstorage";
 import { generateSessionId } from "@/utils";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useSession } from "next-auth/react";
 import {
   createContext,
   ReactNode,
@@ -46,8 +46,6 @@ export const ConversationContext = createContext<Chat | null>(null);
 export const ConversationProvider = ({
   children,
 }: Readonly<{ children: ReactNode }>) => {
-  const { publicKey } = useWallet();
-
   const [conversation, setConversation] = useState<Conversation[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [isThinking, setIsThinking] = useState<boolean>(false);
@@ -57,6 +55,7 @@ export const ConversationProvider = ({
   const [conversationSessions, setConversationSessions] = useState<string[]>(
     [],
   );
+  const { data: session } = useSession();
   const { getLocalValue, setLocalValue } = useLocalStorage();
 
   const fetchConversation = useCallback(
@@ -64,7 +63,7 @@ export const ConversationProvider = ({
       setCurrentSessionId(sessionId);
       const payload = {
         session_id: sessionId,
-        user_id: publicKey,
+        user_id: session?.user?.email,
       };
 
       try {
@@ -99,12 +98,12 @@ export const ConversationProvider = ({
         setIsFetching(false);
       }
     },
-    [publicKey],
+    [session?.user?.email],
   );
 
   const fetchConversationSessions = useCallback(async () => {
     const payload = {
-      user_id: publicKey,
+      user_id: session?.user?.email,
     };
 
     try {
@@ -139,28 +138,26 @@ export const ConversationProvider = ({
     } finally {
       setIsFetching(false);
     }
-  }, [publicKey]);
+  }, [session?.user?.email]);
 
   const submitUserInput = useCallback(
     async ({ message, images }: { message?: string; images?: File[] }) => {
-      if (!publicKey) {
+      if (!session) {
         setConversation((prev) => [
           ...prev,
-          { role: "agent", message: "Please connect wallet" },
+          { role: "agent", message: "Please signin to chat with me" },
         ]);
         return;
       }
-      setConversation((prev) => [
-        ...prev,
-        { role: "user", message: message || "" },
-      ]);
+      if (!message) return;
+      setConversation((prev) => [...prev, { role: "user", message: message }]);
       setIsThinking(true);
 
       const payload = {
         message: message,
         session_id: currentSessionId,
         images: images,
-        user_id: publicKey,
+        user_id: session?.user?.email,
       };
 
       try {
@@ -239,7 +236,7 @@ export const ConversationProvider = ({
         setIsThinking(false);
       }
     },
-    [publicKey, currentSessionId],
+    [currentSessionId, session],
   );
 
   const createConversation = useCallback(() => {
@@ -250,10 +247,10 @@ export const ConversationProvider = ({
   }, [setLocalValue]);
 
   useEffect(() => {
-    if (publicKey) {
+    if (session) {
       fetchConversationSessions();
     }
-  }, [fetchConversationSessions, publicKey]);
+  }, [fetchConversationSessions, session]);
 
   useEffect(() => {
     const localSessionId = getLocalValue("session_id");
@@ -263,12 +260,12 @@ export const ConversationProvider = ({
       setCurrentSessionId(newSessionId);
       return;
     }
-    if (!publicKey) return;
+    if (!session) return;
 
     fetchConversation({
       sessionId: localSessionId,
     });
-  }, [fetchConversation, getLocalValue, setLocalValue, publicKey]);
+  }, [fetchConversation, getLocalValue, setLocalValue, session]);
 
   return (
     <ConversationContext.Provider
