@@ -1,4 +1,7 @@
-export const formatToPercentage = (decimal: number, decimals: number = 2): string => {
+export const formatToPercentage = (
+  decimal: number,
+  decimals: number = 2,
+): string => {
   if (typeof decimal !== "number") {
     throw new Error("Input must be a number");
   }
@@ -22,4 +25,15 @@ export function delay(ms: number) {
 
 export function generateSessionId() {
   return crypto.randomUUID();
+}
+
+export function getInitials(name: string): string {
+  const words = name.trim().split(/\s+/);
+  if (words.length === 1) {
+    return words[0][0].toUpperCase();
+  }
+  return words
+    .slice(-2)
+    .map((word) => word[0].toUpperCase())
+    .join("");
 }

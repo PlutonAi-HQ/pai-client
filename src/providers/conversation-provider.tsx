@@ -25,7 +25,13 @@ export type Chat = {
   answeringText: string | null;
   conversationSessions: string[];
   fetchConversation: ({ sessionId }: { sessionId: string }) => void;
-  submitUserInput: (message: string) => void;
+  submitUserInput: ({
+    message,
+    images,
+  }: {
+    message?: string;
+    images?: File[];
+  }) => void;
   createConversation: () => void;
 };
 
@@ -136,7 +142,7 @@ export const ConversationProvider = ({
   }, [publicKey]);
 
   const submitUserInput = useCallback(
-    async (message: string) => {
+    async ({ message, images }: { message?: string; images?: File[] }) => {
       if (!publicKey) {
         setConversation((prev) => [
           ...prev,
@@ -144,13 +150,16 @@ export const ConversationProvider = ({
         ]);
         return;
       }
-      setConversation((prev) => [...prev, { role: "user", message: message }]);
+      setConversation((prev) => [
+        ...prev,
+        { role: "user", message: message || "" },
+      ]);
       setIsThinking(true);
 
       const payload = {
         message: message,
         session_id: currentSessionId,
-        images: [],
+        images: images,
         user_id: publicKey,
       };
 
