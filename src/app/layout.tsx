@@ -6,7 +6,7 @@ import {
   outfitSans,
 } from "@/assets/fonts/index.config";
 import { Toaster } from "@/components/ui/toaster";
-import SessionProvider from "@/providers/session-provider";
+// import SessionProvider from "@/providers/session-provider";
 import { SolanaWalletProvider } from "@/providers/solana-wallet-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
