@@ -1,8 +1,7 @@
 import backgroundImage from "@/assets/images/background-image.png";
 import ConversationBox from "@/components/home/conversation-box";
+import ConversationMenu from "@/components/home/conversation-menu";
 import UserInput from "@/components/home/user-input";
-import { Button } from "@/components/ui/button";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function Home() {
   return (
@@ -14,10 +13,7 @@ export default function Home() {
         backgroundPosition: "center",
         backgroundBlendMode: "soft-light",
       }}>
-      <div className="flex items-center space-x-3">
-        <SidebarTrigger />
-        <Button variant={"secondary"}>New chat</Button>
-      </div>
+      <ConversationMenu />
       <ConversationBox />
       <UserInput />
     </div>

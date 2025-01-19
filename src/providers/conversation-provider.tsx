@@ -1,9 +1,16 @@
 "use client";
 
+import { SERVER_URL } from "@/configs/env.config";
 import useLocalStorage from "@/hooks/use-localstorage";
 import { generateSessionId } from "@/utils";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { createContext, ReactNode, useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 export type Conversation = {
   role: "user" | "agent";
@@ -30,20 +37,25 @@ type ConversationItem = {
 
 export const ConversationContext = createContext<Chat | null>(null);
 
-export const ConversationProvider = ({ children }: Readonly<{ children: ReactNode }>) => {
+export const ConversationProvider = ({
+  children,
+}: Readonly<{ children: ReactNode }>) => {
   const { publicKey } = useWallet();
 
-  const [conversation, setConversation] = useState<{ role: "user" | "agent"; message: string }[]>([]);
+  const [conversation, setConversation] = useState<Conversation[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [isThinking, setIsThinking] = useState<boolean>(false);
   const [isAnswering, setIsAnswering] = useState<boolean>(false);
   const [answeringText, setAnsweringText] = useState<string | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [conversationSessions, setConversationSessions] = useState<string[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [conversationSessions, setConversationSessions] = useState<string[]>(
+    [],
+  );
   const { getLocalValue, setLocalValue } = useLocalStorage();
 
   const fetchConversation = useCallback(
     async ({ sessionId }: { sessionId: string }) => {
+      setCurrentSessionId(sessionId);
       const payload = {
         session_id: sessionId,
         user_id: publicKey,
@@ -51,7 +63,7 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
 
       try {
         setIsFetching(true);
-        const serverUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}`;
+        const serverUrl = `${SERVER_URL}/agent/history`;
         if (!serverUrl) throw new Error("Server URL are not defined");
 
         const response = await fetch(serverUrl, {
@@ -68,7 +80,13 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
         }
 
         const conversationHistory = await response.json();
-        setConversation(conversationHistory);
+        const transformedConversation = conversationHistory.map(
+          (item: ConversationItem) => ({
+            role: item.role === "user" ? "user" : "agent",
+            message: item.content,
+          }),
+        );
+        setConversation(transformedConversation);
       } catch (error) {
         console.error("Error:", error);
       } finally {
@@ -85,7 +103,7 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
 
     try {
       setIsFetching(true);
-      const serverUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}`;
+      const serverUrl = `${SERVER_URL}/agent/history`;
       if (!serverUrl) throw new Error("Server URL are not defined");
 
       const response = await fetch(serverUrl, {
@@ -102,10 +120,14 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
       }
 
       const conversationSessionsHistory = await response.json();
-      const handledConversationSessionsHistory: string[] = Array.from(
-        new Set(conversationSessionsHistory.flat().map((item: ConversationItem) => item.session_id)),
+      const transformedConversationSessionsHistory: string[] = Array.from(
+        new Set(
+          conversationSessionsHistory
+            .flat()
+            .map((item: ConversationItem) => item.session_id),
+        ),
       );
-      setConversationSessions(handledConversationSessionsHistory);
+      setConversationSessions(transformedConversationSessionsHistory);
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -115,20 +137,27 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
 
   const submitUserInput = useCallback(
     async (message: string) => {
-      setConversation([...conversation, { role: "user", message: message }]);
+      if (!publicKey) {
+        setConversation((prev) => [
+          ...prev,
+          { role: "agent", message: "Please connect wallet" },
+        ]);
+        return;
+      }
+      setConversation((prev) => [...prev, { role: "user", message: message }]);
       setIsThinking(true);
 
       const payload = {
         message: message,
-        session_id: sessionId,
+        session_id: currentSessionId,
         images: [],
         user_id: publicKey,
       };
 
       try {
-        const serverUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/agent/call`;
+        const serverUrl = `${SERVER_URL}/agent/call`;
         if (!serverUrl) {
-          throw new Error("NEXT_PUBLIC_SERVER_URL is not defined");
+          throw new Error("SERVER_URL is not defined");
         }
 
         const response = await fetch(serverUrl, {
@@ -161,7 +190,10 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
           const chunk = decoder.decode(value, { stream: true });
           const chunkArray = chunk.split("\n");
 
-          const handledChunkArray: { event: string; data: string[] } = { event: "", data: [] };
+          const handledChunkArray: { event: string; data: string[] } = {
+            event: "",
+            data: [],
+          };
           chunkArray.forEach((line) => {
             if (line.startsWith("event: ")) {
               handledChunkArray.event = line.replace("event: ", "");
@@ -171,7 +203,9 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
           });
 
           if (handledChunkArray.event === "token") {
-            result += handledChunkArray.data.filter((str) => str.trim() !== "").join("\n");
+            result += handledChunkArray.data
+              .filter((str) => str.trim() !== "")
+              .join("\n");
           } else {
             result = handledChunkArray.data.join("\n");
           }
@@ -179,46 +213,53 @@ export const ConversationProvider = ({ children }: Readonly<{ children: ReactNod
         }
         setIsAnswering(false);
         setAnsweringText(null);
-        setConversation([...conversation, { role: "agent", message: result }]);
+        setConversation((prev) => [
+          ...prev,
+          { role: "agent", message: result },
+        ]);
       } catch (error) {
         console.error("Error:", error);
-        setConversation([
-          ...conversation,
-          { role: "agent", message: "Failed to get response. Try again in 1 minutes" },
+        setConversation((prev) => [
+          ...prev,
+          {
+            role: "agent",
+            message: "Failed to get response. Try again in 1 minutes",
+          },
         ]);
       } finally {
         setIsThinking(false);
       }
     },
-    [conversation, publicKey, sessionId],
+    [publicKey, currentSessionId],
   );
 
   const createConversation = useCallback(() => {
     setConversation([]);
-    setLocalValue("session_id", generateSessionId());
+    const newSessionId = generateSessionId();
+    setLocalValue("session_id", newSessionId);
+    setCurrentSessionId(newSessionId);
   }, [setLocalValue]);
 
   useEffect(() => {
-    fetchConversationSessions();
-  }, [fetchConversationSessions]);
+    if (publicKey) {
+      fetchConversationSessions();
+    }
+  }, [fetchConversationSessions, publicKey]);
 
   useEffect(() => {
-    if (!sessionId) {
-      const localSessionId = getLocalValue("session_id");
-      if (!localSessionId) {
-        const newSessionId = generateSessionId();
-        setLocalValue("session_id", newSessionId);
-        setSessionId(newSessionId);
-        return;
-      } else {
-        setSessionId(localSessionId);
-      }
-    } else {
-      fetchConversation({
-        sessionId: sessionId,
-      });
+    const localSessionId = getLocalValue("session_id");
+    if (!localSessionId) {
+      const newSessionId = generateSessionId();
+      setLocalValue("session_id", newSessionId);
+      setCurrentSessionId(newSessionId);
+      return;
     }
-  }, [fetchConversation, getLocalValue, publicKey, setLocalValue, sessionId]);
+    if (!publicKey) return;
+
+    fetchConversation({
+      sessionId: localSessionId,
+    });
+  }, [fetchConversation, getLocalValue, setLocalValue, publicKey]);
 
   return (
     <ConversationContext.Provider
