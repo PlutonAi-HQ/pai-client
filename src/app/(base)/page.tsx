@@ -1,4 +1,4 @@
-import backgroundImage from "@/assets/images/background-image.png";
+import backgroundImage from "@/assets/images/background-image.webp";
 import ConversationBox from "@/components/home/conversation-box";
 import ConversationMenu from "@/components/home/conversation-menu";
 import UserInput from "@/components/home/user-input";
