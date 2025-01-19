@@ -22,10 +22,14 @@ export default function HistoryList() {
           {conversationSessions?.map((session) => (
             <Collapsible
               defaultOpen
-              key={session}>
+              key={session.session_id}>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => fetchConversation({ sessionId: session })}>
-                  {session}
+                <SidebarMenuButton
+                  className="truncate"
+                  onClick={() =>
+                    fetchConversation({ sessionId: session.session_id })
+                  }>
+                  {session.content}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </Collapsible>

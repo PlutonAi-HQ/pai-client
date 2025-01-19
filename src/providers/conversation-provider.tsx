@@ -16,6 +16,16 @@ export type Conversation = {
   role: "user" | "agent";
   message: string;
 };
+type ConversationItem = {
+  role: string;
+  content: string;
+  session_id: string;
+};
+
+type ConversationSession = {
+  session_id: string;
+  content: string;
+};
 
 export type Chat = {
   conversation: Conversation[];
@@ -23,7 +33,7 @@ export type Chat = {
   isFetching: boolean;
   isAnswering: boolean;
   answeringText: string | null;
-  conversationSessions: string[];
+  conversationSessions: ConversationSession[];
   fetchConversation: ({ sessionId }: { sessionId: string }) => void;
   submitUserInput: ({
     message,
@@ -33,12 +43,6 @@ export type Chat = {
     images?: File[];
   }) => void;
   createConversation: () => void;
-};
-
-type ConversationItem = {
-  role: string;
-  content: string;
-  session_id: string;
 };
 
 export const ConversationContext = createContext<Chat | null>(null);
@@ -52,9 +56,9 @@ export const ConversationProvider = ({
   const [isAnswering, setIsAnswering] = useState<boolean>(false);
   const [answeringText, setAnsweringText] = useState<string | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [conversationSessions, setConversationSessions] = useState<string[]>(
-    [],
-  );
+  const [conversationSessions, setConversationSessions] = useState<
+    ConversationSession[]
+  >([]);
   const { data: session } = useSession();
   const { getLocalValue, setLocalValue } = useLocalStorage();
 
@@ -125,14 +129,20 @@ export const ConversationProvider = ({
       }
 
       const conversationSessionsHistory = await response.json();
-      const transformedConversationSessionsHistory: string[] = Array.from(
-        new Set(
-          conversationSessionsHistory
-            .flat()
-            .map((item: ConversationItem) => item.session_id),
-        ),
+      const groupedBySession: Record<string, string> = {};
+
+      conversationSessionsHistory.forEach((item: ConversationItem) => {
+        if (!groupedBySession[item.session_id]) {
+          groupedBySession[item.session_id] = item.content;
+        }
+      });
+
+      setConversationSessions(
+        Object.entries(groupedBySession).map(([session_id, content]) => ({
+          session_id,
+          content,
+        })),
       );
-      setConversationSessions(transformedConversationSessionsHistory);
     } catch (error) {
       console.error("Error:", error);
     } finally {
