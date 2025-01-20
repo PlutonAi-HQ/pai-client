@@ -129,20 +129,18 @@ export const ConversationProvider = ({
       }
 
       const conversationSessionsHistory = await response.json();
-      const groupedBySession: Record<string, string> = {};
 
-      conversationSessionsHistory.forEach((item: ConversationItem) => {
-        if (!groupedBySession[item.session_id]) {
-          groupedBySession[item.session_id] = item.content;
-        }
-      });
+      console.log("temp 1: ", conversationSessionsHistory);
 
-      setConversationSessions(
-        Object.entries(groupedBySession).map(([session_id, content]) => ({
-          session_id,
-          content,
-        })),
-      );
+      const transformedConversationSessionsHistory =
+        conversationSessionsHistory.map((item: ConversationItem[]) => ({
+          session_id: item[0].session_id,
+          content: item[0].content,
+        }));
+
+      console.log("temp: ", transformedConversationSessionsHistory);
+
+      setConversationSessions(transformedConversationSessionsHistory);
     } catch (error) {
       console.error("Error:", error);
     } finally {
