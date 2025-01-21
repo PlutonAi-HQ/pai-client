@@ -80,6 +80,7 @@ export const ConversationProvider = ({
           headers: {
             "Content-Type": "application/json",
             accept: "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
           },
           body: JSON.stringify(payload),
         });
@@ -102,7 +103,7 @@ export const ConversationProvider = ({
         setIsFetching(false);
       }
     },
-    [session?.user?.email],
+    [session?.user?.email, session?.accessToken],
   );
 
   const fetchConversationSessions = useCallback(async () => {
@@ -120,6 +121,7 @@ export const ConversationProvider = ({
         headers: {
           "Content-Type": "application/json",
           accept: "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
         },
         body: JSON.stringify(payload),
       });
@@ -142,7 +144,7 @@ export const ConversationProvider = ({
     } finally {
       setIsFetching(false);
     }
-  }, [session?.user?.email]);
+  }, [session?.user?.email, session?.accessToken]);
 
   const submitUserInput = useCallback(
     async ({ message, images }: { message?: string; images?: File[] }) => {
@@ -175,6 +177,7 @@ export const ConversationProvider = ({
           headers: {
             "Content-Type": "application/json",
             accept: "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
           },
           body: JSON.stringify(payload),
         });
