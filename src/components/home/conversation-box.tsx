@@ -10,7 +10,8 @@ import remarkGfm from "remark-gfm";
 import remarkHtml from "remark-html";
 
 export default function ConversationBox() {
-  const { conversation, answeringText, isThinking, isAnswering } = useConversation();
+  const { conversation, answeringText, isThinking, isAnswering } =
+    useConversation();
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -27,7 +28,11 @@ export default function ConversationBox() {
         <div
           key={index}
           className={cn("flex w-full", msg.role === "user" && "justify-end")}>
-          <div className={cn("max-w-[90%]", msg.role === "user" && "rounded-lg bg-black/50 px-4 py-2")}>
+          <div
+            className={cn(
+              "max-w-[90%]",
+              msg.role === "user" && "rounded-lg bg-black/50 px-4 py-2",
+            )}>
             <Markdown
               components={{
                 code: (props) => {

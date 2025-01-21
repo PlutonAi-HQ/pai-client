@@ -130,15 +130,11 @@ export const ConversationProvider = ({
 
       const conversationSessionsHistory = await response.json();
 
-      console.log("temp 1: ", conversationSessionsHistory);
-
       const transformedConversationSessionsHistory =
         conversationSessionsHistory.map((item: ConversationItem[]) => ({
           session_id: item[0].session_id,
           content: item[0].content,
         }));
-
-      console.log("temp: ", transformedConversationSessionsHistory);
 
       setConversationSessions(transformedConversationSessionsHistory);
     } catch (error) {

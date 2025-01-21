@@ -72,15 +72,21 @@ export default function Portfolio() {
       variant="inset">
       <SidebarContent>
         <SidebarGroup className="items-start gap-2">
-          <SidebarGroupLabel className="text-base font-bold text-foreground">Porfolio Invest:</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-base font-bold text-foreground">
+            Porfolio Invest:
+          </SidebarGroupLabel>
           <Strong className="whitespace-nowrap bg-gradient-to-b from-cyan-400 to-cyan-100 to-60% bg-clip-text px-2 text-[40px] leading-[48px] text-transparent">
             $ {(1234567).toLocaleString()}
           </Strong>
-          <Badge className="mx-2 bg-green-500 bg-opacity-10 text-green-500">+$200.41(23.41%)</Badge>
+          <Badge className="mx-2 bg-green-500 bg-opacity-10 text-green-500">
+            +$200.41(23.41%)
+          </Badge>
         </SidebarGroup>
         <SidebarSeparator />
         <SidebarGroup className="items-start gap-2">
-          <SidebarGroupLabel className="text-base font-bold text-foreground">Token List:</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-base font-bold text-foreground">
+            Token List:
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {tokenList.map((token: Token, key: Key) => (

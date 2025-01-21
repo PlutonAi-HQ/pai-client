@@ -1,6 +1,11 @@
 "use client";
 
-import { SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  SidebarMenu,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { BotIcon, FlameIcon, GemIcon, WalletIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -61,7 +66,10 @@ export default function NavigationMenu() {
           )}>
           <SidebarMenuButton
             disabled={navigationItem.disable}
-            className={cn("p-3", navigationItem.path === pathname && "bg-background font-bold")}>
+            className={cn(
+              "p-3",
+              navigationItem.path === pathname && "bg-background font-bold",
+            )}>
             <div
               className={cn(
                 "flex items-center gap-2",
@@ -69,7 +77,10 @@ export default function NavigationMenu() {
                   "bg-gradient-to-r from-cyan-400 via-cyan-100 to-cyan-200 bg-clip-text text-transparent",
               )}>
               <navigationItem.icon
-                className={cn("size-6 min-w-4 max-w-6", navigationItem.path === pathname && "text-cyan-400")}
+                className={cn(
+                  "size-6 min-w-4 max-w-6",
+                  navigationItem.path === pathname && "text-cyan-400",
+                )}
               />
               {navigationItem.title}
             </div>
