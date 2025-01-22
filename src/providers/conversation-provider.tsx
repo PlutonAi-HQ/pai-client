@@ -80,6 +80,7 @@ export const ConversationProvider = ({
           headers: {
             "Content-Type": "application/json",
             accept: "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
           },
           body: JSON.stringify(payload),
         });
@@ -102,7 +103,7 @@ export const ConversationProvider = ({
         setIsFetching(false);
       }
     },
-    [session?.user?.email],
+    [session?.user?.email, session?.accessToken],
   );
 
   const fetchConversationSessions = useCallback(async () => {
@@ -120,6 +121,7 @@ export const ConversationProvider = ({
         headers: {
           "Content-Type": "application/json",
           accept: "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
         },
         body: JSON.stringify(payload),
       });
@@ -130,15 +132,11 @@ export const ConversationProvider = ({
 
       const conversationSessionsHistory = await response.json();
 
-      console.log("temp 1: ", conversationSessionsHistory);
-
       const transformedConversationSessionsHistory =
         conversationSessionsHistory.map((item: ConversationItem[]) => ({
           session_id: item[0].session_id,
           content: item[0].content,
         }));
-
-      console.log("temp: ", transformedConversationSessionsHistory);
 
       setConversationSessions(transformedConversationSessionsHistory);
     } catch (error) {
@@ -146,7 +144,7 @@ export const ConversationProvider = ({
     } finally {
       setIsFetching(false);
     }
-  }, [session?.user?.email]);
+  }, [session?.user?.email, session?.accessToken]);
 
   const submitUserInput = useCallback(
     async ({ message, images }: { message?: string; images?: File[] }) => {
@@ -179,6 +177,7 @@ export const ConversationProvider = ({
           headers: {
             "Content-Type": "application/json",
             accept: "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
           },
           body: JSON.stringify(payload),
         });

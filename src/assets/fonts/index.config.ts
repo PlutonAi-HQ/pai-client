@@ -22,6 +22,9 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["100", "200", "300", "400", "500", "600", "700"],
 });
 
-const ethnocentric = localFont({ src: "./ethnocentric.otf", variable: "--font-ethnocentric" });
+const ethnocentric = localFont({
+  src: "./ethnocentric.otf",
+  variable: "--font-ethnocentric",
+});
 
 export { outfitSans, loraSerif, ibmPlexMono, ethnocentric };

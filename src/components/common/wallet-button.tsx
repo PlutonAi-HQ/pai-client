@@ -1,7 +1,12 @@
 "use client";
 
 import { Button } from "../ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
@@ -11,7 +16,14 @@ import { useCallback, useMemo, useState } from "react";
 
 export default function WalletButton() {
   const { setVisible: setModalVisible } = useWalletModal();
-  const { connected, connecting, disconnect, disconnecting, publicKey, wallet } = useWallet();
+  const {
+    connected,
+    connecting,
+    disconnect,
+    disconnecting,
+    publicKey,
+    wallet,
+  } = useWallet();
   const { toast } = useToast();
   const [openMenu, setOpenMenu] = useState<boolean>(false);
 
@@ -35,7 +47,9 @@ export default function WalletButton() {
     if (!wallet) return "No Wallet";
 
     const address = publicKey?.toBase58();
-    const shortenAddress = address ? `${address.slice(0, 4)}..${address.slice(-4)}` : "N/A";
+    const shortenAddress = address
+      ? `${address.slice(0, 4)}..${address.slice(-4)}`
+      : "N/A";
 
     return (
       <span className="flex items-center gap-2">

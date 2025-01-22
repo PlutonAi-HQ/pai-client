@@ -9,6 +9,12 @@ import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import TwitterProvider from "next-auth/providers/twitter";
 
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string;
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -22,20 +28,25 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn() {
-      const response = await fetch(`${SERVER_URL}/wallet/generate`, {
+    async session({ session }) {
+      const response = await fetch(`${SERVER_URL}/callback/social`, {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           accept: "application/json",
         },
+        body: JSON.stringify({
+          username: session?.user?.name,
+          email: session?.user?.email,
+          avatar: session?.user?.image,
+        }),
       });
-      if (!response.ok) {
-        throw Error("Failed to create wallet");
-      }
 
-      const walletData = await response.json();
-      console.log(walletData);
-      return true;
+      if (!response.ok) throw new Error("Failed to fetch social account");
+
+      const userData = await response.json();
+      session.accessToken = userData.access_token;
+      return session;
     },
   },
 };
