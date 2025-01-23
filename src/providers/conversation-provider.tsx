@@ -1,194 +1,116 @@
 "use client";
 
-import { SERVER_URL } from "@/configs/env.config";
+import {
+  AgentCallPayload,
+  ConversationPayload,
+  getConversation,
+  getConversationSessions,
+  postAgentCall,
+} from "@/apis/agent";
+import { ConversationContext } from "@/contexts/conversation";
+import useFileUpload from "@/hooks/use-file-upload";
 import useLocalStorage from "@/hooks/use-localstorage";
+import { Conversation, ConversationSession } from "@/interfaces/conversation";
 import { generateSessionId } from "@/utils";
 import { useSession } from "next-auth/react";
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-
-export type Conversation = {
-  role: "user" | "agent";
-  message: string;
-};
-type ConversationItem = {
-  role: string;
-  content: string;
-  session_id: string;
-};
-
-type ConversationSession = {
-  session_id: string;
-  content: string;
-};
-
-export type Chat = {
-  conversation: Conversation[];
-  isThinking: boolean;
-  isFetching: boolean;
-  isAnswering: boolean;
-  answeringText: string | null;
-  conversationSessions: ConversationSession[];
-  fetchConversation: ({ sessionId }: { sessionId: string }) => void;
-  submitUserInput: ({
-    message,
-    images,
-  }: {
-    message?: string;
-    images?: File[];
-  }) => void;
-  createConversation: () => void;
-};
-
-export const ConversationContext = createContext<Chat | null>(null);
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 export const ConversationProvider = ({
   children,
 }: Readonly<{ children: ReactNode }>) => {
   const [conversation, setConversation] = useState<Conversation[]>([]);
-  const [isFetching, setIsFetching] = useState<boolean>(true);
+  const [isFetchingConversation, setIsFetchingConversation] =
+    useState<boolean>(true);
+  const [isFetchingConversationSessions, setIsFetchingConversationSessions] =
+    useState<boolean>(false);
   const [isThinking, setIsThinking] = useState<boolean>(false);
   const [isAnswering, setIsAnswering] = useState<boolean>(false);
   const [answeringText, setAnsweringText] = useState<string | null>(null);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [conversationSessionId, setConversationSessionId] = useState<
+    string | null
+  >(null);
   const [conversationSessions, setConversationSessions] = useState<
-    ConversationSession[]
+    ConversationSession[][] | ConversationSession[]
   >([]);
   const { data: session } = useSession();
-  const { getLocalValue, setLocalValue } = useLocalStorage();
+  const { setLocalValue } = useLocalStorage();
+  const { uploadFiles } = useFileUpload();
 
   const fetchConversation = useCallback(
     async ({ sessionId }: { sessionId: string }) => {
-      setCurrentSessionId(sessionId);
-      const payload = {
+      if (!session?.user?.email) return;
+      setConversationSessionId(sessionId);
+      const payload: ConversationPayload = {
         session_id: sessionId,
         user_id: session?.user?.email,
       };
 
       try {
-        setIsFetching(true);
-        const serverUrl = `${SERVER_URL}/agent/history`;
-        if (!serverUrl) throw new Error("Server URL are not defined");
-
-        const response = await fetch(serverUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            accept: "application/json",
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch. Status: ${response.status}`);
-        }
-
-        const conversationHistory = await response.json();
-        const transformedConversation = conversationHistory.map(
-          (item: ConversationItem) => ({
-            role: item.role === "user" ? "user" : "agent",
-            message: item.content,
-          }),
-        );
-        setConversation(transformedConversation);
+        setIsFetchingConversation(true);
+        const conversation = await getConversation(payload);
+        setConversation(conversation);
       } catch (error) {
         console.error("Error:", error);
       } finally {
-        setIsFetching(false);
+        setIsFetchingConversation(false);
       }
     },
-    [session?.user?.email, session?.accessToken],
+    [session?.user?.email],
   );
 
   const fetchConversationSessions = useCallback(async () => {
-    const payload = {
-      user_id: session?.user?.email,
-    };
-
     try {
-      setIsFetching(true);
-      const serverUrl = `${SERVER_URL}/agent/history`;
-      if (!serverUrl) throw new Error("Server URL are not defined");
-
-      const response = await fetch(serverUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch. Status: ${response.status}`);
-      }
-
-      const conversationSessionsHistory = await response.json();
-
-      const transformedConversationSessionsHistory =
-        conversationSessionsHistory.map((item: ConversationItem[]) => ({
-          session_id: item[0].session_id,
-          content: item[0].content,
-        }));
-
-      setConversationSessions(transformedConversationSessionsHistory);
+      setIsFetchingConversationSessions(true);
+      const conversationSessions = await getConversationSessions();
+      setConversationSessions(conversationSessions);
     } catch (error) {
       console.error("Error:", error);
     } finally {
-      setIsFetching(false);
+      setIsFetchingConversationSessions(false);
     }
-  }, [session?.user?.email, session?.accessToken]);
+  }, []);
 
   const submitUserInput = useCallback(
     async ({ message, images }: { message?: string; images?: File[] }) => {
-      if (!session) {
-        setConversation((prev) => [
-          ...prev,
-          { role: "agent", message: "Please signin to chat with me" },
-        ]);
+      if (
+        !session ||
+        !conversationSessionId ||
+        !session?.user?.email ||
+        (!message && !images)
+      )
         return;
+
+      let imagePreviews: string[] = [];
+      if (images) {
+        imagePreviews = images.map((file) => URL.createObjectURL(file));
       }
-      if (!message) return;
-      setConversation((prev) => [...prev, { role: "user", message: message }]);
+
+      setConversation((prev) => [
+        ...prev,
+        { role: "user", content: message || "", images: imagePreviews },
+      ]);
+
       setIsThinking(true);
 
-      const payload = {
+      let uploadImageURLs: string[] = [];
+
+      if (images) {
+        uploadImageURLs = await uploadFiles(images);
+      }
+
+      const payload: AgentCallPayload = {
         message: message,
-        session_id: currentSessionId,
-        images: images,
+        session_id: conversationSessionId,
+        images: uploadImageURLs,
         user_id: session?.user?.email,
       };
 
       try {
-        const serverUrl = `${SERVER_URL}/agent/call`;
-        if (!serverUrl) {
-          throw new Error("SERVER_URL is not defined");
-        }
-
-        const response = await fetch(serverUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            accept: "application/json",
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch. Status: ${response.status}`);
-        }
+        const agentResponse = await postAgentCall(payload);
 
         setIsThinking(false);
         setIsAnswering(true);
-        const reader = response.body?.getReader();
+        const reader = agentResponse?.getReader();
         if (!reader) {
           throw new Error("Failed to get reader from response body.");
         }
@@ -228,7 +150,7 @@ export const ConversationProvider = ({
         setAnsweringText(null);
         setConversation((prev) => [
           ...prev,
-          { role: "agent", message: result },
+          { role: "agent", content: result },
         ]);
       } catch (error) {
         console.error("Error:", error);
@@ -236,50 +158,41 @@ export const ConversationProvider = ({
           ...prev,
           {
             role: "agent",
-            message: "Failed to get response. Try again in 1 minutes",
+            content: "Failed to get response. Try again in 1 minutes",
           },
         ]);
       } finally {
         setIsThinking(false);
+        await fetchConversationSessions();
       }
     },
-    [currentSessionId, session],
+    [conversationSessionId, session],
   );
 
   const createConversation = useCallback(() => {
     setConversation([]);
-    const newSessionId = generateSessionId();
-    setLocalValue("session_id", newSessionId);
-    setCurrentSessionId(newSessionId);
+    const newConversationSessionId = generateSessionId();
+    setLocalValue("conversation_session_id", newConversationSessionId);
+    setConversationSessionId(newConversationSessionId);
   }, [setLocalValue]);
 
   useEffect(() => {
-    if (session) {
-      fetchConversationSessions();
-    }
-  }, [fetchConversationSessions, session]);
+    fetchConversationSessions();
+  }, [fetchConversationSessions]);
 
   useEffect(() => {
-    const localSessionId = getLocalValue("session_id");
-    if (!localSessionId) {
-      const newSessionId = generateSessionId();
-      setLocalValue("session_id", newSessionId);
-      setCurrentSessionId(newSessionId);
-      return;
-    }
-    if (!session) return;
-
-    fetchConversation({
-      sessionId: localSessionId,
-    });
-  }, [fetchConversation, getLocalValue, setLocalValue, session]);
+    const newLocalSessionId = generateSessionId();
+    setLocalValue("conversation_session_id", newLocalSessionId);
+    setConversationSessionId(newLocalSessionId);
+  }, []);
 
   return (
     <ConversationContext.Provider
       value={{
         conversation,
         isThinking,
-        isFetching,
+        isFetchingConversation,
+        isFetchingConversationSessions,
         isAnswering,
         answeringText,
         conversationSessions,

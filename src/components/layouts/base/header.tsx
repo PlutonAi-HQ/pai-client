@@ -6,7 +6,7 @@ import { HeartIcon } from "lucide-react";
 
 export default function BaseHeader() {
   return (
-    <header className="fixed left-0 right-0 top-0 flex h-20 items-center justify-between px-4 py-5">
+    <header className="fixed left-0 right-0 top-0 flex h-16 items-center justify-between bg-background px-4">
       <div className="flex items-center space-x-3">
         <Logo />
         <Badge variant={"secondary"}>beta</Badge>

@@ -1,12 +1,14 @@
 import backgroundImage from "@/assets/images/background-image.webp";
+import AgentQuote from "@/components/home/agent-quote";
 import ConversationBox from "@/components/home/conversation-box";
 import ConversationMenu from "@/components/home/conversation-menu";
+import Suggestions from "@/components/home/suggestion";
 import UserInput from "@/components/home/user-input";
 
 export default function Home() {
   return (
     <div
-      className={`flex h-[calc(100svh-80px)] flex-col justify-between gap-2 rounded-xl bg-black/70 p-4`}
+      className={`flex h-[calc(100svh-4rem)] flex-col gap-2 rounded-xl bg-background/80 p-4`}
       style={{
         backgroundImage: `url(${backgroundImage.src})`,
         backgroundSize: "cover",
@@ -15,7 +17,9 @@ export default function Home() {
       }}>
       <ConversationMenu />
       <ConversationBox />
+      <AgentQuote />
       <UserInput />
+      <Suggestions />
     </div>
   );
 }

@@ -12,6 +12,9 @@ import TwitterProvider from "next-auth/providers/twitter";
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
+    wallet?: {
+      public_key?: string;
+    };
   }
 }
 
@@ -46,6 +49,8 @@ export const authOptions: NextAuthOptions = {
 
       const userData = await response.json();
       session.accessToken = userData.access_token;
+      session.wallet = session.wallet || {};
+      session.wallet.public_key = userData.wallet.public_key;
       return session;
     },
   },
