@@ -36,25 +36,13 @@ export default function ConversationBox() {
       {conversation.map((msg, index) => (
         <div
           key={index}
-          className={cn(
-            "flex w-full flex-col gap-2",
-            msg.role === "user" && "items-end",
-          )}>
-          {msg.images && (
-            <div className="flex gap-2">
-              {msg.images.map((image: string, key: Key) => (
-                <Image
-                  key={key}
-                  src={image}
-                  alt={"User Input Image"}
-                  width={100}
-                  height={100}
-                  className="rounded-md"
-                />
-              ))}
-            </div>
-          )}
-          <div className="flex items-start justify-start gap-2">
+          className={cn("flex w-full", msg.role === "user" && "justify-end")}>
+          {/* Agent image */}
+          <div
+            className={cn(
+              "flex w-full max-w-[90%] items-start gap-2",
+              msg.role === "user" && "justify-end",
+            )}>
             {msg.role === "agent" && (
               <Image
                 src={agentAvatar.src}
@@ -64,24 +52,45 @@ export default function ConversationBox() {
                 className="rounded-full"
               />
             )}
-            <div
-              className={cn(
-                "w-full rounded-lg px-4 py-2",
-                msg.role === "user" && "w-full max-w-[90%] bg-black/50",
-                msg.role === "agent" &&
-                  "max-w-[80%] bg-gradient-to-r from-cyan-400/20 to-cyan-200/20 backdrop-blur",
-              )}>
-              {msg.role === "agent" && (
-                <Markdown
-                  components={{
-                    code: CodeBlock,
-                  }}
-                  remarkPlugins={[remarkGfm, remarkHtml]}
-                  className={"w-full max-w-full"}>
-                  {msg.content}
-                </Markdown>
+            <div className="flex flex-col items-end gap-2">
+              {/* Input Image */}
+              {msg.images && (
+                <div className="flex gap-2">
+                  {msg.images.map((image: string, key: Key) => (
+                    <Image
+                      key={key}
+                      src={image}
+                      alt={"User Input Image"}
+                      width={100}
+                      height={100}
+                      className="rounded-md"
+                    />
+                  ))}
+                </div>
               )}
-              {msg.role === "user" && msg.content}
+
+              {/* Message */}
+              <div
+                className={cn(
+                  "rounded-lg px-4 py-2",
+                  msg.role === "user" && "bg-black/50",
+                  msg.role === "agent" &&
+                    "bg-gradient-to-r from-cyan-400/20 to-cyan-200/20 backdrop-blur",
+                )}>
+                {msg.role === "agent" && (
+                  <Markdown
+                    components={{
+                      code: CodeBlock,
+                    }}
+                    remarkPlugins={[remarkGfm, remarkHtml]}
+                    className={"w-full max-w-full"}>
+                    {msg.content}
+                  </Markdown>
+                )}
+                <p className="w-full max-w-full">
+                  {msg.role === "user" && msg.content}
+                </p>
+              </div>
             </div>
           </div>
         </div>

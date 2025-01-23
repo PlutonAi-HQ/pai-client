@@ -105,7 +105,7 @@ export default function UserInput() {
             {...register("message")}
             type="text"
             placeholder="Message PlutonAI"
-            className="w-full resize-none rounded-xl border-none py-2 placeholder:self-center focus-visible:ring-0"
+            className="w-full resize-none rounded-xl border-none py-2 shadow-none placeholder:self-center focus-visible:ring-0"
             disabled={isSubmitting}
             onPaste={handlePaste}
             onKeyDown={handleKeyDown}
