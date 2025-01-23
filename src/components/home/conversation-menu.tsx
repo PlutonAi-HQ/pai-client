@@ -7,7 +7,7 @@ import { useConversation } from "@/hooks/use-conversation";
 export default function ConversationMenu() {
   const { createConversation } = useConversation();
   return (
-    <div className="flex items-center space-x-3">
+    <div className="z-10 flex items-center space-x-3">
       <SidebarTrigger />
       <Button
         variant={"secondary"}
