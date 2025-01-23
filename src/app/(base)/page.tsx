@@ -8,18 +8,17 @@ import UserInput from "@/components/home/user-input";
 export default function Home() {
   return (
     <div
-      className={`flex h-[calc(100svh-4rem)] flex-col gap-2 rounded-xl bg-background/80 p-4`}
+      className={`flex h-[calc(100svh-4rem)] flex-col gap-2 rounded-xl p-4`}
       style={{
         backgroundImage: `url(${backgroundImage.src})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundBlendMode: "soft-light",
       }}>
       <ConversationMenu />
       <ConversationBox />
       <AgentQuote />
-      <UserInput />
       <Suggestions />
+      <UserInput />
     </div>
   );
 }

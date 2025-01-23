@@ -1,10 +1,12 @@
 "use client";
 
 import CodeBlock from "../common/code-block";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import agentAvatar from "@/assets/images/agent-avatar.webp";
 import { useConversation } from "@/hooks/use-conversation";
 import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
+import { getInitials } from "@/utils";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Key, useEffect, useRef } from "react";
 import Markdown from "react-markdown";
@@ -14,6 +16,8 @@ import remarkHtml from "remark-html";
 export default function ConversationBox() {
   const { conversation, answeringText, isThinking, isAnswering } =
     useConversation();
+
+  const { data: session } = useSession();
 
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
@@ -25,24 +29,18 @@ export default function ConversationBox() {
     scrollToBottom();
   }, [answeringText]);
 
-  if (conversation.length === 0) return null;
-
   return (
-    <motion.div
-      initial={{ flexGrow: 0, height: "0px", opacity: 0 }}
-      animate={{ flexGrow: 1, height: "auto", opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="mx-auto w-full max-w-191 flex-grow space-y-4 overflow-y-auto rounded-md">
+    <div className="mx-auto w-full max-w-191 flex-grow space-y-4 overflow-y-auto rounded-md">
       {conversation.map((msg, index) => (
         <div
           key={index}
           className={cn("flex w-full", msg.role === "user" && "justify-end")}>
-          {/* Agent image */}
           <div
             className={cn(
-              "flex w-full max-w-[90%] items-start gap-2",
+              "flex w-full max-w-full items-start space-x-2",
               msg.role === "user" && "justify-end",
             )}>
+            {/* Agent avatar */}
             {msg.role === "agent" && (
               <Image
                 src={agentAvatar.src}
@@ -52,9 +50,9 @@ export default function ConversationBox() {
                 className="rounded-full"
               />
             )}
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-end space-y-2">
               {/* Input Image */}
-              {msg.images && (
+              {msg.images && msg.images?.length > 0 && (
                 <div className="flex gap-2">
                   {msg.images.map((image: string, key: Key) => (
                     <Image
@@ -71,6 +69,7 @@ export default function ConversationBox() {
 
               {/* Message */}
               <div
+                ref={messagesEndRef}
                 className={cn(
                   "rounded-lg px-4 py-2",
                   msg.role === "user" && "bg-black/50",
@@ -92,6 +91,15 @@ export default function ConversationBox() {
                 </p>
               </div>
             </div>
+            {/* User avatar */}
+            {msg.role === "user" && (
+              <Avatar>
+                <AvatarImage src={session?.user?.image ?? undefined} />
+                <AvatarFallback>
+                  {getInitials(session?.user?.name as string)}
+                </AvatarFallback>
+              </Avatar>
+            )}
           </div>
         </div>
       ))}
@@ -143,6 +151,6 @@ export default function ConversationBox() {
           </div>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }

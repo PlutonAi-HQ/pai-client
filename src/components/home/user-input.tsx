@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { MagicCard } from "../ui/magic-card";
+import { Textarea } from "../ui/textarea";
 import { UserInputValue } from "./interfaces";
 import { useConversation } from "@/hooks/use-conversation";
 import { ImagePlus, SendHorizontalIcon, XCircle } from "lucide-react";
@@ -31,7 +32,6 @@ export default function UserInput() {
     (data) => {
       resetField("message");
       resetField("images");
-      console.log(data);
       setImagePreviews([]);
       submitUserInput({ message: data.message, images: data.images || [] });
     },
@@ -50,7 +50,7 @@ export default function UserInput() {
     }
   };
 
-  const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+  const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = event.clipboardData.items;
     const files: File[] = [];
     for (let i = 0; i < items.length; i++) {
@@ -74,7 +74,7 @@ export default function UserInput() {
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault(); // Prevent the default newline behavior
       handleSubmit(onSubmit)(); // Submit the form
@@ -94,16 +94,16 @@ export default function UserInput() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mx-auto mb-6 w-full max-w-191">
+      className="mx-auto mb-6 mt-3 w-full max-w-191">
       <MagicCard
         className="flex flex-col gap-2 bg-black/50 p-2 backdrop-blur"
         gradientColor={theme === "dark" ? "#262626" : "#D9D9D955"}
         gradientFrom="#ecfeff"
-        gradientTo="#22d3ee">
+        gradientTo="#3FCBFA">
         <div className="flex w-full space-x-2">
-          <Input
+          <Textarea
             {...register("message")}
-            type="text"
+            rows={2}
             placeholder="Message PlutonAI"
             className="w-full resize-none rounded-xl border-none py-2 shadow-none placeholder:self-center focus-visible:ring-0"
             disabled={isSubmitting}

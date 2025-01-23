@@ -13,29 +13,26 @@ export default function Suggestions() {
   if (conversation.length > 0) return;
 
   return (
-    <div className="mx-auto w-full max-w-191">
-      <h3 className="my-2 text-sm font-bold text-black/40 dark:text-white/80">
-        Suggestion
-      </h3>
-      <div className="my-2 grid grid-cols-2 gap-4">
-        {actionSuggestions.map((suggestion, key: Key) => (
-          <MagicCard
-            key={key}
-            className="hover:shadow-xl hover:shadow-white/20"
-            gradientColor={theme === "dark" ? "#262626" : "#D9D9D955"}
-            gradientFrom="#ecfeff"
-            gradientTo="#22d3ee">
-            <div
-              className="cursor-pointer p-4"
-              onClick={() => submitUserInput({ message: suggestion.title })}>
-              <p className="font-bold">{suggestion.title}</p>
-              <p className="text-xs text-black/70 dark:text-white/50">
-                {suggestion.description}
-              </p>
-            </div>
-          </MagicCard>
-        ))}
-      </div>
+    <div className="mx-auto my-3 grid w-full max-w-191 grid-cols-2 gap-x-6 gap-y-4">
+      {actionSuggestions.map((suggestion, key: Key) => (
+        <MagicCard
+          key={key}
+          className="border border-transparent hover:border-[#3FCBFA] hover:shadow-md hover:shadow-[#3FCBFA]"
+          gradientColor={theme === "dark" ? "#262626" : "#D9D9D955"}
+          gradientFrom="#ecfeff"
+          gradientTo="#3FCBFA">
+          <div
+            className="cursor-pointer p-4"
+            onClick={() => submitUserInput({ message: suggestion.title })}>
+            <p className="bg-gradient-to-b from-white to-[#3FCBFA] bg-clip-text font-bold text-transparent">
+              {suggestion.title}
+            </p>
+            <p className="text-xs text-black/70 dark:text-white/50">
+              {suggestion.description}
+            </p>
+          </div>
+        </MagicCard>
+      ))}
     </div>
   );
 }
