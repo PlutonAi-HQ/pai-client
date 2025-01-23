@@ -17,6 +17,8 @@ export default function ConversationBox() {
   const { conversation, answeringText, isThinking, isAnswering } =
     useConversation();
 
+  console.log(conversation);
+
   const { data: session } = useSession();
 
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
@@ -41,7 +43,7 @@ export default function ConversationBox() {
               msg.role === "user" && "justify-end",
             )}>
             {/* Agent avatar */}
-            {msg.role === "agent" && (
+            {msg.role === "assistant" && (
               <Image
                 src={agentAvatar.src}
                 alt="agent avt"
@@ -73,10 +75,10 @@ export default function ConversationBox() {
                 className={cn(
                   "rounded-lg px-4 py-2",
                   msg.role === "user" && "bg-black/50",
-                  msg.role === "agent" &&
+                  msg.role === "assistant" &&
                     "bg-gradient-to-r from-cyan-400/20 to-cyan-200/20 backdrop-blur",
                 )}>
-                {msg.role === "agent" && (
+                {msg.role === "assistant" && (
                   <Markdown
                     components={{
                       code: CodeBlock,

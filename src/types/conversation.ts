@@ -1,1 +1,1 @@
-export type ConversationRole = "user" | "agent";
+export type ConversationRole = "user" | "assistant";

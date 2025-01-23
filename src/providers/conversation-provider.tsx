@@ -150,14 +150,14 @@ export const ConversationProvider = ({
         setAnsweringText(null);
         setConversation((prev) => [
           ...prev,
-          { role: "agent", content: result },
+          { role: "assistant", content: result },
         ]);
       } catch (error) {
         console.error("Error:", error);
         setConversation((prev) => [
           ...prev,
           {
-            role: "agent",
+            role: "assistant",
             content: "Failed to get response. Try again in 1 minutes",
           },
         ]);
