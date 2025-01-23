@@ -9,7 +9,7 @@ export default function AgentQuote() {
   const { data: session } = useSession();
   const { conversation } = useConversation();
 
-  if (conversation.length > 0) return null;
+  if (conversation.length > 0 || !session?.user?.name) return null;
 
   return (
     <TypingAnimation

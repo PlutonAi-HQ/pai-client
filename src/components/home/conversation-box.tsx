@@ -66,8 +66,8 @@ export default function ConversationBox() {
             )}
             <div
               className={cn(
-                "w-max rounded-lg px-4 py-2",
-                msg.role === "user" && "max-w-[90%] bg-black/50",
+                "w-full rounded-lg px-4 py-2",
+                msg.role === "user" && "w-full max-w-[90%] bg-black/50",
                 msg.role === "agent" &&
                   "max-w-[80%] bg-gradient-to-r from-cyan-400/20 to-cyan-200/20 backdrop-blur",
               )}>

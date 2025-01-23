@@ -31,6 +31,7 @@ export default function UserInput() {
     (data) => {
       resetField("message");
       resetField("images");
+      console.log(data);
       setImagePreviews([]);
       submitUserInput({ message: data.message, images: data.images || [] });
     },
