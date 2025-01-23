@@ -14,7 +14,7 @@ export default function Suggestions() {
 
   return (
     <div className="mx-auto w-full max-w-191">
-      <h3 className="my-2 text-sm font-bold text-white/80 dark:text-black/40">
+      <h3 className="my-2 text-sm font-bold text-black/40 dark:text-white/80">
         Suggestion
       </h3>
       <div className="my-2 grid grid-cols-2 gap-4">
@@ -29,7 +29,7 @@ export default function Suggestions() {
               className="cursor-pointer p-4"
               onClick={() => submitUserInput({ message: suggestion.title })}>
               <p className="font-bold">{suggestion.title}</p>
-              <p className="text-xs text-white/50 dark:text-black/70">
+              <p className="text-xs text-black/70 dark:text-white/50">
                 {suggestion.description}
               </p>
             </div>
