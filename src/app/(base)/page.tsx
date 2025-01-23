@@ -15,7 +15,7 @@ export default function Home() {
         backgroundPosition: "center",
         boxShadow: "inset 0 4px 4px 0 #00000040",
       }}>
-      <div className="absolute left-0 top-0 h-[calc(100svh-4rem)] w-full bg-gradient-to-t from-[#121212] to-transparent" />
+      <div className="absolute left-0 top-0 z-0 h-[calc(100svh-4rem)] w-full bg-gradient-to-t from-[#121212] to-transparent" />
       <ConversationMenu />
       <ConversationBox />
       <AgentQuote />
