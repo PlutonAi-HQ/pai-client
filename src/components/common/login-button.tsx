@@ -10,12 +10,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from "../ui/dropdown-menu";
+import { useClipboard } from "@/hooks/use-clipboard";
+import { useToast } from "@/hooks/use-toast";
 import { getInitials } from "@/utils";
-import { LoaderCircleIcon } from "lucide-react";
+import { CopyIcon, LoaderCircleIcon } from "lucide-react";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function LoginButton() {
   const { data: session, status } = useSession();
+  const { copy } = useClipboard();
+  const { toast } = useToast();
+
+  const handleCopyClick = async () => {
+    if (session?.wallet?.public_key) {
+      await copy(session?.wallet?.public_key);
+      toast({ description: "Copied wallet address to clipboard!" });
+    }
+  };
+
   if (status === "authenticated") {
     return (
       <DropdownMenu>
@@ -27,21 +39,28 @@ export default function LoginButton() {
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+        <DropdownMenuContent className="max-w-xs">
+          <DropdownMenuLabel>{session?.user?.name}</DropdownMenuLabel>
           <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Billing</DropdownMenuItem>
-          <DropdownMenuItem>Team</DropdownMenuItem>
           <DropdownMenuItem>Subscription</DropdownMenuItem>
+
           <DropdownMenuSeparator />
+
+          <DropdownMenuLabel>Wallet</DropdownMenuLabel>
           <DropdownMenuItem>
-            <Button
-              variant={"destructive"}
-              onClick={() => signOut()}
-              className="w-full">
-              Log out
-            </Button>
+            <p className="truncate">{session?.wallet?.public_key}</p>
+            <CopyIcon
+              className="cursor-pointer"
+              onClick={handleCopyClick}
+            />
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            className="font-bold text-red-500"
+            onClick={() => signOut()}>
+            Log out
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

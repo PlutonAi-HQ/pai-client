@@ -13,7 +13,7 @@ export default function BaseLayout({
       <ConversationProvider>
         <SidebarProvider>
           <AppSidebar />
-          <main className="h-svh w-full bg-background pt-20 text-foreground">
+          <main className="h-svh w-full bg-background pt-16 text-foreground">
             {children}
           </main>
           {/* <Portfolio /> */}

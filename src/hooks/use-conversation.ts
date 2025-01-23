@@ -1,6 +1,6 @@
 "use client";
 
-import { ConversationContext } from "@/providers/conversation-provider";
+import { ConversationContext } from "@/contexts/conversation";
 import { useContext } from "react";
 
 export function useConversation() {

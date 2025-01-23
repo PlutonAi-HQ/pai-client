@@ -37,3 +37,8 @@ export function getInitials(name: string): string {
     .map((word) => word[0].toUpperCase())
     .join("");
 }
+
+export function getLastName(fullName: string): string {
+  const nameParts = fullName.trim().split(" ");
+  return nameParts[nameParts.length - 1];
+}
