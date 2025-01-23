@@ -30,7 +30,7 @@ export default async function RootLayout({
         className={`${outfitSans.variable} ${loraSerif.variable} ${ethnocentric.variable} ${ibmPlexMono.variable} bg-background font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem>
           <SessionProvider>
             <SolanaWalletProvider>{children}</SolanaWalletProvider>
