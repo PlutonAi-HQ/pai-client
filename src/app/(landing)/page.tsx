@@ -5,6 +5,7 @@ import Logo from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 import { H2, H6 } from "@/components/ui/typography";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Landing() {
   return (
@@ -48,11 +49,16 @@ export default function Landing() {
             </H6>
           </div>
           <div className="mt-8 flex w-full justify-center gap-4 xl:justify-start">
-            <Button
-              variant={"outline"}
-              className="border border-[#3FCBFA80] bg-gradient-to-r from-[#3FCBFA80] via-[#A7E9FF] to-[#3FCBFA] bg-clip-text text-transparent hover:text-transparent hover:shadow hover:shadow-[#3FCBFA80]">
-              Launch App
-            </Button>
+            <Link
+              href={"/platform"}
+              target="_blank"
+              aria-disabled>
+              <Button
+                variant={"outline"}
+                className="border border-[#3FCBFA80] bg-gradient-to-r from-[#3FCBFA80] via-[#A7E9FF] to-[#3FCBFA] bg-clip-text text-transparent hover:text-transparent hover:shadow hover:shadow-[#3FCBFA80]">
+                Launch App
+              </Button>
+            </Link>
             <Button variant={"default"}>Become Partner</Button>
           </div>
         </div>
