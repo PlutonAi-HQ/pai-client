@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
   /* config options here */
   output: "standalone",
   assetPrefix: NODE_ENV === "production" ? "https://plutonai.fun" : "",
-  trailingSlash: true,
 
   images: {
     remotePatterns: [
