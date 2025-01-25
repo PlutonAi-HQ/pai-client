@@ -8,7 +8,6 @@ import {
 import { Toaster } from "@/components/ui/toaster";
 import { NODE_ENV } from "@/configs/env.config";
 import SessionProvider from "@/providers/session-provider";
-import { SolanaWalletProvider } from "@/providers/solana-wallet-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
 
@@ -32,9 +31,7 @@ export default async function RootLayout({
           attribute="class"
           defaultTheme="dark"
           enableSystem>
-          <SessionProvider>
-            <SolanaWalletProvider>{children}</SolanaWalletProvider>
-          </SessionProvider>
+          <SessionProvider>{children}</SessionProvider>
           <Toaster />
         </ThemeProvider>
       </body>
