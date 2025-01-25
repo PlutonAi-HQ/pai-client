@@ -17,8 +17,6 @@ export default function ConversationBox() {
   const { conversation, answeringText, isThinking, isAnswering } =
     useConversation();
 
-  console.log(conversation);
-
   const { data: session } = useSession();
 
   const messagesEndRef = useRef<null | HTMLDivElement>(null);

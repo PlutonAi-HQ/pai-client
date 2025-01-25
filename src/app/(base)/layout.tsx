@@ -1,22 +1,15 @@
-import {
-  ethnocentric,
-  ibmPlexMono,
-  loraSerif,
-  outfitSans,
-} from "@/assets/fonts/index.config";
 import BaseHeader from "@/components/layouts/base/header";
 // import Portfolio from "@/components/layouts/base/portfolio";
 import AppSidebar from "@/components/layouts/base/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ConversationProvider } from "@/providers/conversation-provider";
-import { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 
 export default function BaseLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <div
-      className={`${outfitSans.variable} ${loraSerif.variable} ${ethnocentric.variable} ${ibmPlexMono.variable}`}>
+    <Fragment>
       <ConversationProvider>
         <SidebarProvider>
           <AppSidebar />
@@ -27,6 +20,6 @@ export default function BaseLayout({
         </SidebarProvider>
       </ConversationProvider>
       <BaseHeader />
-    </div>
+    </Fragment>
   );
 }
