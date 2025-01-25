@@ -50,7 +50,7 @@ export default function Landing() {
           </div>
           <div className="mt-8 flex w-full justify-center gap-4 xl:justify-start">
             <Link
-              href={"/platform"}
+              href={"https://app.plutonai.fun/"}
               target="_blank"
               aria-disabled>
               <Button
