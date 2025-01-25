@@ -97,10 +97,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
-@font-face {
-  font-family: "Ethnocentric";
-  src: url("/fonts/ethnocentric.otf") format("otf");
-  font-weight: normal;
-  font-style: normal;
-}
