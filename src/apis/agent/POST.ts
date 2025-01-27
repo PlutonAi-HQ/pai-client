@@ -1,8 +1,4 @@
-import {
-  AgentCallPayload,
-  ConversationPayload,
-  ConversationSessionsPayload,
-} from "./interface";
+import { AgentCallPayload, ConversationPayload } from "./interface";
 import { SERVER_URL } from "@/configs/env.config";
 import { Conversation, ConversationSession } from "@/interfaces/conversation";
 import { getSession } from "next-auth/react";

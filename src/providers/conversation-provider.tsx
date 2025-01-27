@@ -7,12 +7,13 @@ import {
   getConversationSessions,
   postAgentCall,
 } from "@/apis/agent";
+import { SERVER_URL } from "@/configs/env.config";
 import { ConversationContext } from "@/contexts/conversation";
 import useFileUpload from "@/hooks/use-file-upload";
 import useLocalStorage from "@/hooks/use-localstorage";
 import { Conversation, ConversationSession } from "@/interfaces/conversation";
 import { generateSessionId, handleStreamEventData } from "@/utils";
-import { getSession, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
 export const ConversationProvider = ({
@@ -32,22 +33,40 @@ export const ConversationProvider = ({
   const [conversationSessions, setConversationSessions] = useState<
     ConversationSession[][] | ConversationSession[]
   >([]);
+  const { data: session } = useSession();
   const { setLocalValue } = useLocalStorage();
   const { uploadFiles } = useFileUpload();
 
   const fetchConversation = useCallback(
     async ({ sessionId }: { sessionId: string }) => {
-      const session = await getSession();
       if (!session?.user?.email) return;
       setConversationSessionId(sessionId);
       const payload: ConversationPayload = {
         session_id: sessionId,
-        user_id: session.user.email,
+        // user_id: session.user.email,
       };
 
       try {
         setIsFetchingConversation(true);
-        const conversation = await getConversation(payload);
+
+        const serverUrl = `${SERVER_URL}/agent/history`;
+        if (!serverUrl) throw new Error("Server URL are not defined");
+
+        const response = await fetch(serverUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch. Status: ${response.status}`);
+        }
+
+        const conversation: Conversation[] = await response.json();
         setConversation(conversation);
       } catch (error) {
         console.error("Error:", error);
@@ -55,25 +74,43 @@ export const ConversationProvider = ({
         setIsFetchingConversation(false);
       }
     },
-    [],
+    [session],
   );
 
   const fetchConversationSessions = useCallback(async () => {
+    if (!session) return;
     try {
       setIsFetchingConversationSessions(true);
-      const conversationSessions = await getConversationSessions();
+      const serverUrl = `${SERVER_URL}/agent/history`;
+      if (!serverUrl) throw new Error("Server URL are not defined");
+
+      const response = await fetch(serverUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch. Status: ${response.status}`);
+      }
+
+      const conversationSessions: ConversationSession[][] =
+        await response.json();
+
       setConversationSessions(conversationSessions);
     } catch (error) {
       console.error("Error:", error);
     } finally {
       setIsFetchingConversationSessions(false);
     }
-  }, []);
+  }, [session]);
 
   const submitUserInput = useCallback(
     async ({ message, images }: { message?: string; images?: File[] }) => {
-      const session = await getSession();
-
       if (
         !session ||
         !conversationSessionId ||
@@ -86,7 +123,7 @@ export const ConversationProvider = ({
 
       let uploadImageURLs: string[] = [];
 
-      if (images) {
+      if (images && images.length > 0) {
         uploadImageURLs = await uploadFiles(images);
       }
 
@@ -103,7 +140,25 @@ export const ConversationProvider = ({
       };
 
       try {
-        const agentResponse = await postAgentCall(payload);
+        const serverUrl = `${SERVER_URL}/agent/call`;
+        if (!serverUrl) {
+          throw new Error("SERVER_URL is not defined");
+        }
+        const response = await fetch(serverUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch. Status: ${response.status}`);
+        }
+
+        const agentResponse = response.body;
 
         setIsThinking(false);
         setIsAnswering(true);
@@ -130,6 +185,9 @@ export const ConversationProvider = ({
           ...prev,
           { role: "assistant", content: result },
         ]);
+        if (conversation.length === 0) {
+          await fetchConversationSessions();
+        }
       } catch (error) {
         console.error("Error:", error);
         setConversation((prev) => [
@@ -141,10 +199,15 @@ export const ConversationProvider = ({
         ]);
       } finally {
         setIsThinking(false);
-        await fetchConversationSessions();
       }
     },
-    [conversationSessionId, uploadFiles, fetchConversationSessions],
+    [
+      conversationSessionId,
+      uploadFiles,
+      fetchConversationSessions,
+      session,
+      conversation,
+    ],
   );
 
   const createConversation = useCallback(() => {
