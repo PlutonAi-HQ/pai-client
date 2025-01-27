@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Key, useEffect, useRef } from "react";
 import Markdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import remarkHtml from "remark-html";
 
@@ -30,7 +31,7 @@ export default function ConversationBox() {
   }, [answeringText]);
 
   return (
-    <div className="mx-auto w-full max-w-191 flex-grow space-y-4 overflow-y-auto rounded-md">
+    <div className="z-10 mx-auto w-full max-w-7xl flex-grow space-y-4 overflow-y-auto rounded-md">
       {conversation.map((msg, index) => (
         <div
           key={index}
@@ -81,8 +82,11 @@ export default function ConversationBox() {
                     components={{
                       code: CodeBlock,
                     }}
-                    remarkPlugins={[remarkGfm, remarkHtml]}
-                    className={"w-full max-w-full"}>
+                    // remarkPlugins={[remarkGfm, remarkHtml]}
+                    // rehypePlugins={[rehypeRaw]}
+                    className={
+                      "w-full max-w-[90%] overflow-x-auto whitespace-normal"
+                    }>
                     {msg.content}
                   </Markdown>
                 )}

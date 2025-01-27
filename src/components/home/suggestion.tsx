@@ -3,22 +3,20 @@
 import { MagicCard } from "../ui/magic-card";
 import { actionSuggestions } from "@/constants/conversation";
 import { useConversation } from "@/hooks/use-conversation";
-import { useTheme } from "next-themes";
 import { Key } from "react";
 
 export default function Suggestions() {
-  const { theme } = useTheme();
   const { submitUserInput, conversation } = useConversation();
 
   if (conversation.length > 0) return;
 
   return (
-    <div className="mx-auto my-3 grid w-full max-w-191 grid-cols-2 gap-x-6 gap-y-4">
+    <div className="mx-auto my-3 grid w-full max-w-7xl grid-cols-2 gap-x-6 gap-y-4">
       {actionSuggestions.map((suggestion, key: Key) => (
         <MagicCard
           key={key}
           className="border border-transparent hover:border-[#3FCBFA] hover:shadow-md hover:shadow-[#3FCBFA]"
-          gradientColor={theme === "dark" ? "#262626" : "#D9D9D955"}
+          gradientColor="#262626"
           gradientFrom="#ecfeff"
           gradientTo="#3FCBFA">
           <div

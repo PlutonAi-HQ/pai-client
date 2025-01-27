@@ -8,7 +8,6 @@ import { Textarea } from "../ui/textarea";
 import { UserInputValue } from "./interfaces";
 import { useConversation } from "@/hooks/use-conversation";
 import { ImagePlus, SendHorizontalIcon, XCircle } from "lucide-react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -22,7 +21,6 @@ export default function UserInput() {
     getValues,
     formState: { isDirty, isSubmitting },
   } = useForm<UserInputValue>();
-  const { theme } = useTheme();
 
   const { submitUserInput } = useConversation();
 
@@ -30,10 +28,10 @@ export default function UserInput() {
 
   const onSubmit: SubmitHandler<UserInputValue> = useCallback(
     (data) => {
-      resetField("message");
-      resetField("images");
-      setImagePreviews([]);
       submitUserInput({ message: data.message, images: data.images || [] });
+      resetField("message");
+      setValue("images", []);
+      setImagePreviews([]);
     },
     [resetField, submitUserInput],
   );
@@ -94,10 +92,10 @@ export default function UserInput() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mx-auto mb-6 mt-3 w-full max-w-191">
+      className="mx-auto mb-6 mt-3 w-full max-w-7xl">
       <MagicCard
         className="flex flex-col gap-2 bg-black/50 p-2 backdrop-blur"
-        gradientColor={theme === "dark" ? "#262626" : "#D9D9D955"}
+        gradientColor="#262626"
         gradientFrom="#ecfeff"
         gradientTo="#3FCBFA">
         <div className="flex w-full space-x-2">

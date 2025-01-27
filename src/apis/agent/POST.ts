@@ -9,10 +9,7 @@ import { getSession } from "next-auth/react";
 
 export const getConversationSessions = async () => {
   const session = await getSession();
-  if (!session || !session?.user?.email) return [];
-  const payload: ConversationSessionsPayload = {
-    user_id: session?.user?.email,
-  };
+
   const serverUrl = `${SERVER_URL}/agent/history`;
   if (!serverUrl) throw new Error("Server URL are not defined");
 
@@ -23,7 +20,7 @@ export const getConversationSessions = async () => {
       accept: "application/json",
       Authorization: `Bearer ${session?.accessToken}`,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({}),
   });
 
   if (!response.ok) {

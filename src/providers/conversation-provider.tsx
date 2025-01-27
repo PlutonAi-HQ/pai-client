@@ -11,7 +11,7 @@ import { ConversationContext } from "@/contexts/conversation";
 import useFileUpload from "@/hooks/use-file-upload";
 import useLocalStorage from "@/hooks/use-localstorage";
 import { Conversation, ConversationSession } from "@/interfaces/conversation";
-import { generateSessionId } from "@/utils";
+import { generateSessionId, handleStreamEventData } from "@/utils";
 import { useSession } from "next-auth/react";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
@@ -42,7 +42,7 @@ export const ConversationProvider = ({
       setConversationSessionId(sessionId);
       const payload: ConversationPayload = {
         session_id: sessionId,
-        user_id: session?.user?.email,
+        user_id: session.user.email,
       };
 
       try {
@@ -80,15 +80,12 @@ export const ConversationProvider = ({
       )
         return;
 
-      let imagePreviews: string[] = [];
-      if (images) {
-        imagePreviews = images.map((file) => URL.createObjectURL(file));
-      }
+      // Clear previews for current submission
+      // let imagePreviews: string[] = [];
 
-      setConversation((prev) => [
-        ...prev,
-        { role: "user", content: message || "", images: imagePreviews },
-      ]);
+      // if (images) {
+      //   imagePreviews = images.map((file) => URL.createObjectURL(file));
+      // }
 
       setIsThinking(true);
 
@@ -98,11 +95,16 @@ export const ConversationProvider = ({
         uploadImageURLs = await uploadFiles(images);
       }
 
+      setConversation((prev) => [
+        ...prev,
+        { role: "user", content: message || "", images: uploadImageURLs },
+      ]);
+
       const payload: AgentCallPayload = {
-        message: message,
+        message,
         session_id: conversationSessionId,
         images: uploadImageURLs,
-        user_id: session?.user?.email,
+        user_id: session.user.email,
       };
 
       try {
@@ -123,27 +125,8 @@ export const ConversationProvider = ({
           if (done) break;
 
           const chunk = decoder.decode(value, { stream: true });
-          const chunkArray = chunk.split("\n");
+          result += handleStreamEventData(chunk);
 
-          const handledChunkArray: { event: string; data: string[] } = {
-            event: "",
-            data: [],
-          };
-          chunkArray.forEach((line) => {
-            if (line.startsWith("event: ")) {
-              handledChunkArray.event = line.replace("event: ", "");
-            } else if (line.startsWith("data:")) {
-              handledChunkArray.data.push(line.replace(/^data: /, ""));
-            } else handledChunkArray.data.push(line);
-          });
-
-          if (handledChunkArray.event === "token") {
-            result += handledChunkArray.data
-              .filter((str) => str.trim() !== "")
-              .join("\n");
-          } else {
-            result = handledChunkArray.data.join("\n");
-          }
           setAnsweringText(result);
         }
         setIsAnswering(false);
@@ -158,7 +141,7 @@ export const ConversationProvider = ({
           ...prev,
           {
             role: "assistant",
-            content: "Failed to get response. Try again in 1 minutes",
+            content: "Failed to get response. Try again!",
           },
         ]);
       } finally {
@@ -166,7 +149,7 @@ export const ConversationProvider = ({
         await fetchConversationSessions();
       }
     },
-    [conversationSessionId, session],
+    [conversationSessionId, session, uploadFiles, fetchConversationSessions],
   );
 
   const createConversation = useCallback(() => {
@@ -184,7 +167,7 @@ export const ConversationProvider = ({
     const newLocalSessionId = generateSessionId();
     setLocalValue("conversation_session_id", newLocalSessionId);
     setConversationSessionId(newLocalSessionId);
-  }, []);
+  }, [setLocalValue]);
 
   return (
     <ConversationContext.Provider
