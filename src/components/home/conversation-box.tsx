@@ -1,6 +1,7 @@
 "use client";
 
 import CodeBlock from "../common/code-block";
+import MarkdownFormat from "../common/markdown-format";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import agentAvatar from "@/assets/images/agent-avatar.webp";
 import { useConversation } from "@/hooks/use-conversation";
@@ -78,17 +79,7 @@ export default function ConversationBox() {
                     "bg-gradient-to-r from-cyan-400/20 to-cyan-200/20 backdrop-blur",
                 )}>
                 {msg.role === "assistant" && (
-                  <Markdown
-                    components={{
-                      code: CodeBlock,
-                    }}
-                    // remarkPlugins={[remarkGfm, remarkHtml]}
-                    // rehypePlugins={[rehypeRaw]}
-                    className={
-                      "w-full max-w-[90%] overflow-x-auto whitespace-normal"
-                    }>
-                    {msg.content}
-                  </Markdown>
+                  <MarkdownFormat>{msg.content}</MarkdownFormat>
                 )}
                 <p className="w-full max-w-full">
                   {msg.role === "user" && msg.content}
@@ -120,14 +111,7 @@ export default function ConversationBox() {
             className={
               "w-max max-w-[80%] rounded-lg bg-gradient-to-r from-cyan-400/20 to-cyan-200/20 px-4 py-2 backdrop-blur"
             }>
-            <Markdown
-              components={{
-                code: CodeBlock,
-              }}
-              remarkPlugins={[remarkGfm, remarkHtml]}
-              className={"w-full max-w-full"}>
-              Agent is thinking....
-            </Markdown>
+            <MarkdownFormat> Agent is thinking....</MarkdownFormat>
           </div>
         </div>
       )}
@@ -144,14 +128,7 @@ export default function ConversationBox() {
             className={
               "w-max max-w-[80%] rounded-lg bg-gradient-to-r from-cyan-400/20 to-cyan-200/20 px-4 py-2 backdrop-blur"
             }>
-            <Markdown
-              components={{
-                code: CodeBlock,
-              }}
-              remarkPlugins={[remarkGfm, remarkHtml]}
-              className={"w-full max-w-full"}>
-              {answeringText}
-            </Markdown>
+            <MarkdownFormat>{answeringText}</MarkdownFormat>
           </div>
         </div>
       )}
