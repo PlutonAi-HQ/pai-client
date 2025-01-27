@@ -4,7 +4,6 @@ export interface ConversationSessionsPayload {
 
 export interface ConversationPayload {
   session_id: string;
-  // user_id: string;
 }
 
 export interface AgentCallPayload {

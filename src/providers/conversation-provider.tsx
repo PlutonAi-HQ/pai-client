@@ -43,12 +43,10 @@ export const ConversationProvider = ({
       setConversationSessionId(sessionId);
       const payload: ConversationPayload = {
         session_id: sessionId,
-        // user_id: session.user.email,
       };
 
       try {
         setIsFetchingConversation(true);
-
         const serverUrl = `${SERVER_URL}/agent/history`;
         if (!serverUrl) throw new Error("Server URL are not defined");
 
@@ -74,9 +72,13 @@ export const ConversationProvider = ({
         setIsFetchingConversation(false);
       }
     },
-    [session],
+    [
+      session,
+      setConversationSessionId,
+      setConversation,
+      setIsFetchingConversation,
+    ],
   );
-
   const fetchConversationSessions = useCallback(async () => {
     if (!session) return;
     try {
@@ -100,14 +102,13 @@ export const ConversationProvider = ({
 
       const conversationSessions: ConversationSession[][] =
         await response.json();
-
       setConversationSessions(conversationSessions);
     } catch (error) {
       console.error("Error:", error);
     } finally {
       setIsFetchingConversationSessions(false);
     }
-  }, [session]);
+  }, [session, setIsFetchingConversationSessions, setConversationSessions]);
 
   const submitUserInput = useCallback(
     async ({ message, images }: { message?: string; images?: File[] }) => {
@@ -122,7 +123,6 @@ export const ConversationProvider = ({
       setIsThinking(true);
 
       let uploadImageURLs: string[] = [];
-
       if (images && images.length > 0) {
         uploadImageURLs = await uploadFiles(images);
       }
@@ -141,9 +141,8 @@ export const ConversationProvider = ({
 
       try {
         const serverUrl = `${SERVER_URL}/agent/call`;
-        if (!serverUrl) {
-          throw new Error("SERVER_URL is not defined");
-        }
+        if (!serverUrl) throw new Error("SERVER_URL is not defined");
+
         const response = await fetch(serverUrl, {
           method: "POST",
           headers: {
@@ -162,10 +161,10 @@ export const ConversationProvider = ({
 
         setIsThinking(false);
         setIsAnswering(true);
+
         const reader = agentResponse?.getReader();
-        if (!reader) {
+        if (!reader)
           throw new Error("Failed to get reader from response body.");
-        }
 
         const decoder = new TextDecoder("utf-8");
         let result = "";
@@ -179,12 +178,14 @@ export const ConversationProvider = ({
 
           setAnsweringText(result);
         }
+
         setIsAnswering(false);
         setAnsweringText(null);
         setConversation((prev) => [
           ...prev,
           { role: "assistant", content: result },
         ]);
+
         if (conversation.length === 0) {
           await fetchConversationSessions();
         }
@@ -192,10 +193,7 @@ export const ConversationProvider = ({
         console.error("Error:", error);
         setConversation((prev) => [
           ...prev,
-          {
-            role: "assistant",
-            content: "Failed to get response. Try again!",
-          },
+          { role: "assistant", content: "Failed to get response. Try again!" },
         ]);
       } finally {
         setIsThinking(false);
@@ -207,6 +205,10 @@ export const ConversationProvider = ({
       fetchConversationSessions,
       session,
       conversation,
+      setConversation,
+      setIsThinking,
+      setIsAnswering,
+      setAnsweringText,
     ],
   );
 
