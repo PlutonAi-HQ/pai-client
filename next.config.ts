@@ -3,12 +3,16 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   output: "standalone",
-
+  // assetPrefix: "https://plutonai.fun",
   images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "platsbucketdev.s3.amazonaws.com",
+        hostname: "*",
+      },
+      {
+        protocol: "http",
+        hostname: "*",
       },
     ],
   },
