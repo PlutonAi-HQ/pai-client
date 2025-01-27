@@ -1,6 +1,5 @@
 "use client";
 
-import CodeBlock from "../common/code-block";
 import MarkdownFormat from "../common/markdown-format";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import agentAvatar from "@/assets/images/agent-avatar.webp";
@@ -10,10 +9,6 @@ import { getInitials } from "@/utils";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Key, useEffect, useRef } from "react";
-import Markdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm";
-import remarkHtml from "remark-html";
 
 export default function ConversationBox() {
   const { conversation, answeringText, isThinking, isAnswering } =
@@ -31,105 +26,92 @@ export default function ConversationBox() {
     scrollToBottom();
   }, [answeringText]);
 
+  if (conversation.length === 0) return;
+
   return (
-    <div className="z-10 mx-auto w-full max-w-7xl flex-grow space-y-4 overflow-y-auto rounded-md">
+    <div className="z-10 mx-auto w-full max-w-7xl flex-grow space-y-4 divide-y-2 divide-white/30 overflow-y-auto rounded-xl bg-black p-6">
       {conversation.map((msg, index) => (
         <div
           key={index}
-          className={cn("flex w-full", msg.role === "user" && "justify-end")}>
-          <div
-            className={cn(
-              "flex w-full max-w-full items-start space-x-2",
-              msg.role === "user" && "justify-end",
-            )}>
-            {/* Agent avatar */}
-            {msg.role === "assistant" && (
-              <Image
-                src={agentAvatar.src}
-                alt="agent avt"
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-            )}
-            <div className="flex flex-col items-end space-y-2">
-              {/* Input Image */}
-              {msg.images && msg.images?.length > 0 && (
-                <div className="flex gap-2">
-                  {msg.images.map((image: string, key: Key) => (
-                    <Image
-                      key={key}
-                      src={image}
-                      alt={"User Input Image"}
-                      width={100}
-                      height={100}
-                      className="rounded-md"
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Message */}
-              <div
-                ref={messagesEndRef}
-                className={cn(
-                  "rounded-lg px-4 py-2",
-                  msg.role === "user" && "bg-black/50",
-                  msg.role === "assistant" &&
-                    "bg-gradient-to-r from-cyan-400/20 to-cyan-200/20 backdrop-blur",
-                )}>
-                {msg.role === "assistant" && (
-                  <MarkdownFormat>{msg.content}</MarkdownFormat>
-                )}
-                <p className="w-full max-w-full">
-                  {msg.role === "user" && msg.content}
-                </p>
+          className={cn(
+            "relative flex w-full max-w-full items-center space-x-4 pb-2 pt-6 first:pt-0",
+            msg.role === "user" && "justify-end",
+          )}>
+          {/* Agent avatar */}
+          {msg.role === "assistant" && (
+            <Image
+              src={agentAvatar.src}
+              alt="agent avt"
+              width={40}
+              height={40}
+              className="sticky top-0 self-start rounded-full"
+            />
+          )}
+          <div className="flex flex-grow flex-col items-end space-y-2">
+            {/* Input Image */}
+            {msg.images && msg.images?.length > 0 && (
+              <div className="flex gap-2">
+                {msg.images.map((image: string, key: Key) => (
+                  <Image
+                    key={key}
+                    src={image}
+                    alt={"User Input Image"}
+                    width={100}
+                    height={100}
+                    className="rounded-md"
+                  />
+                ))}
               </div>
-            </div>
-            {/* User avatar */}
-            {msg.role === "user" && (
-              <Avatar>
-                <AvatarImage src={session?.user?.image ?? undefined} />
-                <AvatarFallback>
-                  {getInitials(session?.user?.name as string)}
-                </AvatarFallback>
-              </Avatar>
             )}
+
+            {/* Message */}
+            <div
+              className={cn(
+                "flex w-full",
+                msg.role === "user" && "justify-end",
+              )}>
+              {msg.role === "assistant" && (
+                <MarkdownFormat>{msg.content}</MarkdownFormat>
+              )}
+              <p className="w-fit">{msg.role === "user" && msg.content}</p>
+
+              {/* This component used to scroll to current generating message */}
+            </div>
           </div>
+          {/* User avatar */}
+          {msg.role === "user" && (
+            <Avatar>
+              <AvatarImage src={session?.user?.image ?? undefined} />
+              <AvatarFallback>
+                {getInitials(session?.user?.name as string)}
+              </AvatarFallback>
+            </Avatar>
+          )}
         </div>
       ))}
       {isThinking && (
-        <div className="flex items-start justify-start gap-2">
+        <div className="flex items-center justify-start gap-2 space-x-4 pt-4">
           <Image
             src={agentAvatar.src}
             alt="agent avt"
             width={40}
             height={40}
-            className="rounded-full"
+            className="sticky top-0 self-start rounded-full"
           />
-          <div
-            className={
-              "w-max max-w-[80%] rounded-lg bg-gradient-to-r from-cyan-400/20 to-cyan-200/20 px-4 py-2 backdrop-blur"
-            }>
-            <MarkdownFormat> Agent is thinking....</MarkdownFormat>
-          </div>
+          <MarkdownFormat>Agent is thinking....</MarkdownFormat>
         </div>
       )}
       {isAnswering && (
-        <div className="flex items-start justify-start gap-2">
+        <div className="flex items-center justify-start space-x-4 pt-4">
           <Image
             src={agentAvatar.src}
             alt="agent avt"
             width={40}
             height={40}
-            className="rounded-full"
+            className="sticky top-0 self-start rounded-full"
           />
-          <div
-            className={
-              "w-max max-w-[80%] rounded-lg bg-gradient-to-r from-cyan-400/20 to-cyan-200/20 px-4 py-2 backdrop-blur"
-            }>
-            <MarkdownFormat>{answeringText}</MarkdownFormat>
-          </div>
+          <MarkdownFormat>{answeringText}</MarkdownFormat>
+          <div ref={messagesEndRef} />
         </div>
       )}
     </div>

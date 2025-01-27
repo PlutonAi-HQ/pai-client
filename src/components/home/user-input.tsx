@@ -102,29 +102,27 @@ export default function UserInput() {
           <Textarea
             {...register("message")}
             rows={2}
+            autoFocus
             placeholder="Message PlutonAI"
             className="w-full resize-none rounded-xl border-none py-2 shadow-none placeholder:self-center focus-visible:ring-0"
             disabled={isSubmitting}
             onPaste={handlePaste}
             onKeyDown={handleKeyDown}
           />
-          <Button
-            variant={"ghost"}
-            size={"icon"}>
-            <Label
-              htmlFor="upload-images"
-              className="flex cursor-pointer items-center gap-2">
-              <ImagePlus className="size-4" />
-              <Input
-                id="upload-images"
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={handleImageChange}
-              />
-            </Label>
-          </Button>
+
+          <Label
+            htmlFor="upload-images"
+            className="flex size-9 cursor-pointer items-center justify-center self-start rounded-md hover:bg-accent">
+            <ImagePlus className="size-4" />
+            <Input
+              id="upload-images"
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </Label>
           <Button
             type="submit"
             size="icon"

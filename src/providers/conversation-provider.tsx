@@ -12,7 +12,7 @@ import useFileUpload from "@/hooks/use-file-upload";
 import useLocalStorage from "@/hooks/use-localstorage";
 import { Conversation, ConversationSession } from "@/interfaces/conversation";
 import { generateSessionId, handleStreamEventData } from "@/utils";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
 export const ConversationProvider = ({
@@ -32,12 +32,12 @@ export const ConversationProvider = ({
   const [conversationSessions, setConversationSessions] = useState<
     ConversationSession[][] | ConversationSession[]
   >([]);
-  const { data: session } = useSession();
   const { setLocalValue } = useLocalStorage();
   const { uploadFiles } = useFileUpload();
 
   const fetchConversation = useCallback(
     async ({ sessionId }: { sessionId: string }) => {
+      const session = await getSession();
       if (!session?.user?.email) return;
       setConversationSessionId(sessionId);
       const payload: ConversationPayload = {
@@ -55,7 +55,7 @@ export const ConversationProvider = ({
         setIsFetchingConversation(false);
       }
     },
-    [session?.user?.email],
+    [],
   );
 
   const fetchConversationSessions = useCallback(async () => {
@@ -72,6 +72,8 @@ export const ConversationProvider = ({
 
   const submitUserInput = useCallback(
     async ({ message, images }: { message?: string; images?: File[] }) => {
+      const session = await getSession();
+
       if (
         !session ||
         !conversationSessionId ||
@@ -79,13 +81,6 @@ export const ConversationProvider = ({
         (!message && !images)
       )
         return;
-
-      // Clear previews for current submission
-      // let imagePreviews: string[] = [];
-
-      // if (images) {
-      //   imagePreviews = images.map((file) => URL.createObjectURL(file));
-      // }
 
       setIsThinking(true);
 
@@ -149,7 +144,7 @@ export const ConversationProvider = ({
         await fetchConversationSessions();
       }
     },
-    [conversationSessionId, session, uploadFiles, fetchConversationSessions],
+    [conversationSessionId, uploadFiles, fetchConversationSessions],
   );
 
   const createConversation = useCallback(() => {
