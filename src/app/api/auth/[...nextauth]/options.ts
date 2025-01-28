@@ -11,11 +11,21 @@ import TwitterProvider from "next-auth/providers/twitter";
 
 declare module "next-auth" {
   interface Session {
-    accessToken?: string;
-    wallet?: {
-      public_key?: string;
+    accessToken: string;
+    referral: {
+      code: string;
+      total_used: number;
+    };
+    wallet: {
+      public_key: string;
     };
   }
+}
+
+interface UserData {
+  referral: { code: string; total_used: number };
+  access_token: string;
+  wallet: { public_key: string };
 }
 
 export const authOptions: NextAuthOptions = {
@@ -32,25 +42,32 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({ session }) {
-      const response = await fetch(`${SERVER_URL}/callback/social`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-        },
-        body: JSON.stringify({
-          username: session?.user?.name,
-          email: session?.user?.email,
-          avatar: session?.user?.image,
-        }),
-      });
+      try {
+        const response = await fetch(`${SERVER_URL}/callback/social`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
+          body: JSON.stringify({
+            username: session?.user?.name,
+            email: session?.user?.email,
+            avatar: session?.user?.image,
+          }),
+        });
 
-      if (!response.ok) throw new Error("Failed to fetch social account");
+        if (!response.ok) {
+          console.error("API Error: ", response.status, await response.text());
+          throw new Error("Unable to fetch social account data.");
+        }
 
-      const userData = await response.json();
-      session.accessToken = userData.access_token;
-      session.wallet = session.wallet || {};
-      session.wallet.public_key = userData.wallet.public_key;
+        const userData: UserData = await response.json();
+        session.referral = userData.referral;
+        session.accessToken = userData.access_token;
+        session.wallet = userData.wallet;
+      } catch (error) {
+        console.error("Session Callback Error: ", error);
+      }
       return session;
     },
   },

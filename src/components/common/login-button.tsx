@@ -9,6 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuItem,
+  DropdownMenuGroup,
 } from "../ui/dropdown-menu";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { useToast } from "@/hooks/use-toast";
@@ -21,10 +22,17 @@ export default function LoginButton() {
   const { copy } = useClipboard();
   const { toast } = useToast();
 
-  const handleCopyClick = async () => {
+  const handleCopyWalletClick = async () => {
     if (session?.wallet?.public_key) {
       await copy(session?.wallet?.public_key);
       toast({ description: "Copied wallet address to clipboard!" });
+    }
+  };
+
+  const handleCopyReferralClick = async () => {
+    if (session?.referral?.code) {
+      await copy(session?.referral?.code);
+      toast({ description: "Copied referral code to clipboard!" });
     }
   };
 
@@ -40,20 +48,40 @@ export default function LoginButton() {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="max-w-xs">
-          <DropdownMenuLabel>{session?.user?.name}</DropdownMenuLabel>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Subscription</DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>{session?.user?.name}</DropdownMenuLabel>
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Subscription</DropdownMenuItem>
+          </DropdownMenuGroup>
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuLabel>Wallet</DropdownMenuLabel>
-          <DropdownMenuItem>
-            <p className="truncate">{session?.wallet?.public_key}</p>
-            <CopyIcon
-              className="cursor-pointer"
-              onClick={handleCopyClick}
-            />
-          </DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Wallet</DropdownMenuLabel>
+            <DropdownMenuItem>
+              <p className="w-full truncate">{session?.wallet?.public_key}</p>
+              <CopyIcon
+                className="cursor-pointer"
+                onClick={handleCopyWalletClick}
+              />
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Referral</DropdownMenuLabel>
+            <DropdownMenuItem disabled>
+              <p>Invited: {session.referral.total_used}</p>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <p className="w-full truncate">Code: {session?.referral?.code}</p>
+              <CopyIcon
+                className="cursor-pointer"
+                onClick={handleCopyReferralClick}
+              />
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
 
           <DropdownMenuSeparator />
 

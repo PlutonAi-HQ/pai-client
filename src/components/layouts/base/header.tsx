@@ -1,8 +1,8 @@
 import LoginButton from "@/components/common/login-button";
 import Logo from "@/components/common/logo";
-// import WalletButton from "@/components/common/wallet-button";
 import { Badge } from "@/components/ui/badge";
-import { HeartIcon } from "lucide-react";
+
+// import { HeartIcon } from "lucide-react";
 
 export default function BaseHeader() {
   return (
@@ -12,10 +12,9 @@ export default function BaseHeader() {
         <Badge variant={"secondary"}>beta</Badge>
       </div>
       <div className="flex items-center space-x-4">
-        <button className="flex items-center gap-2 rounded-md border border-yellow-500 bg-gradient-to-b from-yellow-400/60 via-yellow-500/40 via-30% to-yellow-600/20 p-2 text-sm text-yellow-500 backdrop-blur">
+        {/* <button className="flex items-center gap-2 rounded-md border border-yellow-500 bg-gradient-to-b from-yellow-400/60 via-yellow-500/40 via-30% to-yellow-600/20 p-2 text-sm text-yellow-500 backdrop-blur">
           100 Point <HeartIcon className="size-4 fill-yellow-500" />
-        </button>
-        {/* <WalletButton /> */}
+        </button> */}
         <LoginButton />
       </div>
     </header>
