@@ -13,17 +13,14 @@ export default async function Home(props: {
   const searchParams = await props.searchParams;
   const session = await getServerSession();
 
-  console.log(session);
-
   if (searchParams.ref && session) {
     try {
       await fetch(`${SERVER_URL}/ref/use`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${session?.accessToken}`,
         },
-        body: JSON.stringify({ ref_code: searchParams.ref }),
+        body: JSON.stringify({ ref_code: searchParams.ref }) || undefined,
       });
     } catch (error) {
       throw new Error("Failed to submit referral code");

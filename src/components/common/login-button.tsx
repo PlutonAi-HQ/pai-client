@@ -29,13 +29,6 @@ export default function LoginButton() {
     }
   };
 
-  const handleCopyReferralClick = async () => {
-    if (session?.referral?.code) {
-      await copy(session?.referral?.code);
-      toast({ description: "Copied referral code to clipboard!" });
-    }
-  };
-
   if (status === "authenticated") {
     return (
       <DropdownMenu>
@@ -67,9 +60,9 @@ export default function LoginButton() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
 
-          <DropdownMenuSeparator />
+          {/* <DropdownMenuSeparator /> */}
 
-          <DropdownMenuGroup>
+          {/* <DropdownMenuGroup>
             <DropdownMenuLabel>Referral</DropdownMenuLabel>
             <DropdownMenuItem disabled>
               <p>Invited: {session.referral.total_used}</p>
@@ -81,7 +74,7 @@ export default function LoginButton() {
                 onClick={handleCopyReferralClick}
               />
             </DropdownMenuItem>
-          </DropdownMenuGroup>
+          </DropdownMenuGroup> */}
 
           <DropdownMenuSeparator />
 
