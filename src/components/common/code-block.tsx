@@ -1,17 +1,12 @@
-import { ReactNode, HTMLAttributes } from "react";
+import { HTMLAttributes } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { nord } from "react-syntax-highlighter/dist/esm/styles/hljs";
-
-interface CodeBlockProps extends HTMLAttributes<HTMLElement> {
-  children: ReactNode;
-  className?: string;
-}
 
 export default function CodeBlock({
   children,
   className,
-  ...rest
-}: CodeBlockProps) {
+  ...props
+}: HTMLAttributes<HTMLPreElement>) {
   const match = /language-(\w+)/.exec(className || "");
   return match ? (
     <SyntaxHighlighter
@@ -19,8 +14,6 @@ export default function CodeBlock({
       PreTag="div"
       customStyle={{
         borderRadius: "12px",
-        backgroundColor: "#000000cc",
-        color: "white",
         textShadow: "none",
         textDecoration: "none",
         margin: "4px 0",
@@ -30,7 +23,7 @@ export default function CodeBlock({
     </SyntaxHighlighter>
   ) : (
     <code
-      {...rest}
+      {...props}
       className={className}>
       {children}
     </code>

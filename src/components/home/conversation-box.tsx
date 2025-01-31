@@ -90,7 +90,9 @@ export default function ConversationBox() {
         </div>
       ))}
       {isThinking && (
-        <div className="flex items-center justify-start gap-2 space-x-4 pt-4">
+        <div
+          ref={messagesEndRef}
+          className="flex items-center justify-start space-x-4 pb-2 pt-6">
           <Image
             src={agentAvatar.src}
             alt="agent avt"
@@ -102,7 +104,7 @@ export default function ConversationBox() {
         </div>
       )}
       {isAnswering && (
-        <div className="flex items-center justify-start space-x-4 pt-4">
+        <div className="flex items-center justify-start space-x-4 pb-2 pt-6">
           <Image
             src={agentAvatar.src}
             alt="agent avt"
@@ -111,9 +113,9 @@ export default function ConversationBox() {
             className="sticky top-0 self-start rounded-full"
           />
           <MarkdownFormat>{answeringText}</MarkdownFormat>
-          <div ref={messagesEndRef} />
         </div>
       )}
+      <div ref={messagesEndRef} />
     </div>
   );
 }

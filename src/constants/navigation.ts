@@ -1,7 +1,7 @@
-import { SidebarNavigatiomMenu } from "@/interfaces/navigation";
+import { SidebarNavigationMenu } from "@/interfaces/navigation";
 import { BotIcon, FlameIcon, GemIcon, WalletIcon } from "lucide-react";
 
-export const sidebarNavigatiomMenu: SidebarNavigatiomMenu = [
+export const sidebarNavigatiomMenu: SidebarNavigationMenu = [
   {
     path: "/",
     title: "Chat Agent",

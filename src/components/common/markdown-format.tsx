@@ -8,7 +8,9 @@ export default function MarkdownFormat(props: Options) {
   return (
     <Markdown
       components={{
-        code: CodeBlock,
+        code(props) {
+          return <CodeBlock {...props} />;
+        },
         h1(props) {
           return (
             <h1
