@@ -80,7 +80,7 @@ export default function ConversationBox() {
           </div>
           {/* User avatar */}
           {msg.role === "user" && (
-            <Avatar>
+            <Avatar className="sticky top-0 self-start rounded-full">
               <AvatarImage src={session?.user?.image ?? undefined} />
               <AvatarFallback>
                 {getInitials(session?.user?.name as string)}
