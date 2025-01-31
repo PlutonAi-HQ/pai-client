@@ -23,7 +23,7 @@ export default async function Home(props: {
         body: JSON.stringify({ ref_code: searchParams.ref }) || undefined,
       });
     } catch (error) {
-      throw new Error("Failed to submit referral code");
+      throw new Error(`Failed to submit referral code. Error: ${error}`);
     }
   }
 

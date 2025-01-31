@@ -1,7 +1,6 @@
 import { Icon, NotifyPriority } from "../types/common";
 
-export interface SidebarNavigatiomMenu
-  extends Array<SidebarNavigationMenuItem> {}
+export type SidebarNavigationMenu = SidebarNavigationMenuItem[];
 
 export interface SidebarNavigationMenuItem {
   path: string;

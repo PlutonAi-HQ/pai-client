@@ -1,7 +1,17 @@
+import { ReactNode, HTMLAttributes } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { nord } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
-export default function CodeBlock({ children, className, ...rest }: any) {
+interface CodeBlockProps extends HTMLAttributes<HTMLElement> {
+  children: ReactNode;
+  className?: string;
+}
+
+export default function CodeBlock({
+  children,
+  className,
+  ...rest
+}: CodeBlockProps) {
   const match = /language-(\w+)/.exec(className || "");
   return match ? (
     <SyntaxHighlighter

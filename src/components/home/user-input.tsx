@@ -33,7 +33,7 @@ export default function UserInput() {
       setValue("images", []);
       setImagePreviews([]);
     },
-    [resetField, submitUserInput],
+    [resetField, submitUserInput, setValue],
   );
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {

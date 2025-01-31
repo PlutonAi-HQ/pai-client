@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  AgentCallPayload,
-  ConversationPayload,
-  getConversation,
-  getConversationSessions,
-  postAgentCall,
-} from "@/apis/agent";
+import { AgentCallPayload, ConversationPayload } from "@/apis/agent";
 import { SERVER_URL } from "@/configs/env.config";
 import { ConversationContext } from "@/contexts/conversation";
 import useFileUpload from "@/hooks/use-file-upload";
