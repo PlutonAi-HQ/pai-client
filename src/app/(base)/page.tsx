@@ -15,12 +15,15 @@ export default async function Home(props: {
 
   if (searchParams.ref && session) {
     try {
+      const headers = new Headers();
+      // headers.delete("Content-Length");
+      headers.append("Content-Type", "application/json");
+      headers.append("Authorization", `Bearer ${session?.accessToken}`);
+
       await fetch(`${SERVER_URL}/ref/use`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-        body: JSON.stringify({ ref_code: searchParams.ref }) || undefined,
+        headers,
+        body: JSON.stringify({ ref_code: searchParams.ref }),
       });
     } catch (error) {
       throw new Error(`Failed to submit referral code. Error: ${error}`);
