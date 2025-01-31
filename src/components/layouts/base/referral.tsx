@@ -26,13 +26,14 @@ export default function Referral() {
   if (!session || !session?.referral) return;
 
   return (
-    <div className="flex items-center space-x-4">
-      <div className="flex items-center space-x-2">
-        <p>Referral:</p>
+    <div className="hidden items-center space-x-4 md:flex">
+      <div className="flex items-center space-x-1">
+        <p>Referral Code:</p>
         <p className="text-yellow-600">{session.referral.code}</p>
         <Button
           size={"icon"}
           variant={"ghost"}
+          className="size-7"
           onClick={handleCopyReferralClick}>
           <CopyIcon />
         </Button>

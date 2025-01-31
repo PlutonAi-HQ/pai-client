@@ -11,23 +11,32 @@ import {
   DropdownMenuItem,
   DropdownMenuGroup,
 } from "../ui/dropdown-menu";
+import { BASE_URL } from "@/configs/env.config";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { useToast } from "@/hooks/use-toast";
 import { getInitials } from "@/utils";
 import { CopyIcon, LoaderCircleIcon } from "lucide-react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useCallback } from "react";
 
 export default function LoginButton() {
   const { data: session, status } = useSession();
   const { copy } = useClipboard();
   const { toast } = useToast();
 
-  const handleCopyWalletClick = async () => {
+  const handleCopyWalletClick = useCallback(async () => {
     if (session?.wallet?.public_key) {
       await copy(session?.wallet?.public_key);
       toast({ description: "Copied wallet address to clipboard!" });
     }
-  };
+  }, [copy, session?.wallet?.public_key, toast]);
+
+  const handleCopyReferralClick = useCallback(async () => {
+    if (session?.referral?.code) {
+      await copy(`${BASE_URL}?ref=${session?.referral?.code}`);
+      toast({ description: "Copied referral code to clipboard!" });
+    }
+  }, [session, copy, toast]);
 
   if (status === "authenticated") {
     return (
@@ -60,21 +69,23 @@ export default function LoginButton() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
 
-          {/* <DropdownMenuSeparator /> */}
+          <DropdownMenuSeparator className="md:hidden" />
 
-          {/* <DropdownMenuGroup>
+          <DropdownMenuGroup className="md:hidden">
             <DropdownMenuLabel>Referral</DropdownMenuLabel>
             <DropdownMenuItem disabled>
               <p>Invited: {session.referral.total_used}</p>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <p className="w-full truncate">Code: {session?.referral?.code}</p>
+              <p className="w-full truncate">
+                Referral Code: {session?.referral?.code}
+              </p>
               <CopyIcon
                 className="cursor-pointer"
                 onClick={handleCopyReferralClick}
               />
             </DropdownMenuItem>
-          </DropdownMenuGroup> */}
+          </DropdownMenuGroup>
 
           <DropdownMenuSeparator />
 
