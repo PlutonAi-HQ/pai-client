@@ -4,32 +4,8 @@ import ConversationBox from "@/components/home/conversation-box";
 import ConversationMenu from "@/components/home/conversation-menu";
 import Suggestions from "@/components/home/suggestion";
 import UserInput from "@/components/home/user-input";
-import { SERVER_URL } from "@/configs/env.config";
-import { getServerSession } from "next-auth";
 
-export default async function Home(props: {
-  searchParams: Promise<{ ref: string | undefined }>;
-}) {
-  const searchParams = await props.searchParams;
-  const session = await getServerSession();
-
-  if (searchParams.ref && session) {
-    try {
-      const headers = new Headers();
-      // headers.delete("Content-Length");
-      headers.append("Content-Type", "application/json");
-      headers.append("Authorization", `Bearer ${session?.accessToken}`);
-
-      await fetch(`${SERVER_URL}/ref/use`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ ref_code: searchParams.ref }),
-      });
-    } catch (error) {
-      throw new Error(`Failed to submit referral code. Error: ${error}`);
-    }
-  }
-
+export default function Home() {
   return (
     <div
       className={`relative flex h-[calc(100svh-4rem)] flex-col justify-between gap-2 rounded-xl p-4`}

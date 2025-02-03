@@ -74,7 +74,7 @@ export default function LoginButton() {
           <DropdownMenuGroup className="md:hidden">
             <DropdownMenuLabel>Referral</DropdownMenuLabel>
             <DropdownMenuItem disabled>
-              <p>Invited: {session.referral.total_used}</p>
+              <p>Invited: {session?.referral?.total_used}</p>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <p className="w-full truncate">

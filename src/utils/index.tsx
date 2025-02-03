@@ -77,3 +77,28 @@ export function handleStreamEventData(chunk: string) {
 
   return result;
 }
+
+export function splitURL(url: string): {
+  baseURL: string;
+  params: string;
+  searchParams: Record<string, string>;
+} {
+  const [baseWithParams, searchParams] = url.split("?");
+  const baseParts = baseWithParams.split("/");
+  const baseURL = baseParts.slice(0, -1).join("/");
+  const extractedParams = baseParts.pop() || "";
+
+  const searchParamsObj: Record<string, string> = {};
+  if (searchParams) {
+    searchParams.split("&").forEach((param) => {
+      const [key, value] = param.split("=");
+      searchParamsObj[key] = value || "";
+    });
+  }
+
+  return {
+    baseURL,
+    params: extractedParams,
+    searchParams: searchParamsObj,
+  };
+}
