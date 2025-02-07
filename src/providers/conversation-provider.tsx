@@ -29,6 +29,7 @@ export const ConversationProvider = ({
   const [conversationSessions, setConversationSessions] = useState<
     ConversationSession[][] | ConversationSession[]
   >([]);
+
   const { data: session } = useSession();
   const { uploadFiles } = useFileUpload();
   const router = useRouter();
@@ -75,17 +76,24 @@ export const ConversationProvider = ({
         }
 
         const conversation: Conversation[] = await response.json();
+        if (!conversation || conversation.length === 0) {
+          throw new Error("No conversation data found");
+        }
+
         setConversation(conversation);
+        updateQuery("conversation", sessionId);
       } catch (error) {
         console.error("Error:", error);
+        router.push(pathname);
       } finally {
         setIsFetchingConversation(false);
-        updateQuery("conversation", sessionId);
       }
     },
     [
-      updateQuery,
       session,
+      router,
+      pathname,
+      updateQuery,
       setConversationSessionId,
       setConversation,
       setIsFetchingConversation,
@@ -215,11 +223,11 @@ export const ConversationProvider = ({
     },
     [
       conversationSessionId,
+      session,
+      conversation,
       updateQuery,
       uploadFiles,
       fetchConversationSessions,
-      session,
-      conversation,
       setConversation,
       setIsThinking,
       setIsAnswering,
@@ -256,6 +264,7 @@ export const ConversationProvider = ({
         isAnswering,
         answeringText,
         conversationSessions,
+        conversationId,
         submitUserInput,
         fetchConversation,
         createConversation,

@@ -30,7 +30,7 @@ export default function ConversationBox() {
 
   return (
     <div className="z-10 mx-auto w-full max-w-7xl flex-grow space-y-4 divide-y-2 divide-white/30 overflow-y-auto rounded-xl bg-black p-6">
-      {conversation.map((msg, index) => (
+      {conversation?.map((msg, index) => (
         <div
           key={index}
           className={cn(

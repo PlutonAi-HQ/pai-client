@@ -7,9 +7,10 @@ import { useSession } from "next-auth/react";
 
 export default function AgentQuote() {
   const { data: session } = useSession();
-  const { conversation } = useConversation();
+  const { conversation, conversationId } = useConversation();
 
-  if (conversation.length > 0 || !session?.user?.name) return null;
+  if (conversation.length > 0 || !session?.user?.name || conversationId)
+    return null;
 
   return (
     <TypingAnimation

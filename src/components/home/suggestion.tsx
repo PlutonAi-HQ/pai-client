@@ -6,9 +6,9 @@ import { useConversation } from "@/hooks/use-conversation";
 import { Key } from "react";
 
 export default function Suggestions() {
-  const { submitUserInput, conversation } = useConversation();
+  const { submitUserInput, conversation, conversationId } = useConversation();
 
-  if (conversation.length > 0) return;
+  if (conversation.length > 0 || conversationId) return;
 
   return (
     <div className="mx-auto my-3 grid w-full max-w-7xl grid-cols-2 gap-x-6 gap-y-4">

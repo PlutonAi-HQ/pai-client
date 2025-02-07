@@ -8,6 +8,7 @@ export interface ConversationContextValue {
   isAnswering: boolean;
   answeringText: string | null;
   conversationSessions: ConversationSession[][] | ConversationSession[];
+  conversationId: string | undefined | null;
   fetchConversation: ({ sessionId }: { sessionId: string }) => void;
   submitUserInput: ({
     message,
