@@ -56,9 +56,9 @@ export default function LoginButton() {
             <DropdownMenuItem>Subscription</DropdownMenuItem>
           </DropdownMenuGroup>
 
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="md:hidden" />
 
-          <DropdownMenuGroup>
+          <DropdownMenuGroup className="md:hidden">
             <DropdownMenuLabel>Wallet</DropdownMenuLabel>
             <DropdownMenuItem>
               <p className="w-full truncate">{session?.wallet?.public_key}</p>

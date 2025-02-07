@@ -102,3 +102,8 @@ export function splitURL(url: string): {
     searchParams: searchParamsObj,
   };
 }
+
+export function formatWalletAddress(address: string): string {
+  if (address.length <= 8) return address;
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
