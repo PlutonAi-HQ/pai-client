@@ -4,10 +4,10 @@ import { AgentCallPayload, ConversationPayload } from "@/apis/agent";
 import { SERVER_URL } from "@/configs/env.config";
 import { ConversationContext } from "@/contexts/conversation";
 import useFileUpload from "@/hooks/use-file-upload";
-import useLocalStorage from "@/hooks/use-localstorage";
 import { Conversation, ConversationSession } from "@/interfaces/conversation";
 import { generateSessionId, handleStreamEventData } from "@/utils";
 import { useSession } from "next-auth/react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
 export const ConversationProvider = ({
@@ -24,12 +24,28 @@ export const ConversationProvider = ({
   const [conversationSessionId, setConversationSessionId] = useState<
     string | null
   >(null);
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get("conversation");
   const [conversationSessions, setConversationSessions] = useState<
     ConversationSession[][] | ConversationSession[]
   >([]);
   const { data: session } = useSession();
-  const { setLocalValue } = useLocalStorage();
   const { uploadFiles } = useFileUpload();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const updateQuery = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+      router.push(pathname + "?" + params.toString());
+    },
+    [searchParams, pathname, router],
+  );
+
+  const resetQuery = useCallback(() => {
+    router.push(pathname);
+  }, [pathname, router]);
 
   const fetchConversation = useCallback(
     async ({ sessionId }: { sessionId: string }) => {
@@ -64,15 +80,18 @@ export const ConversationProvider = ({
         console.error("Error:", error);
       } finally {
         setIsFetchingConversation(false);
+        updateQuery("conversation", sessionId);
       }
     },
     [
+      updateQuery,
       session,
       setConversationSessionId,
       setConversation,
       setIsFetchingConversation,
     ],
   );
+
   const fetchConversationSessions = useCallback(async () => {
     if (!session) return;
     try {
@@ -96,6 +115,7 @@ export const ConversationProvider = ({
 
       const conversationSessions: ConversationSession[][] =
         await response.json();
+
       setConversationSessions(conversationSessions);
     } catch (error) {
       console.error("Error:", error);
@@ -130,7 +150,6 @@ export const ConversationProvider = ({
         message,
         session_id: conversationSessionId,
         images: uploadImageURLs,
-        user_id: session.user.email,
       };
 
       try {
@@ -182,6 +201,7 @@ export const ConversationProvider = ({
 
         if (conversation.length === 0) {
           await fetchConversationSessions();
+          updateQuery("conversation", conversationSessionId);
         }
       } catch (error) {
         console.error("Error:", error);
@@ -195,6 +215,7 @@ export const ConversationProvider = ({
     },
     [
       conversationSessionId,
+      updateQuery,
       uploadFiles,
       fetchConversationSessions,
       session,
@@ -207,21 +228,23 @@ export const ConversationProvider = ({
   );
 
   const createConversation = useCallback(() => {
+    resetQuery();
     setConversation([]);
     const newConversationSessionId = generateSessionId();
-    setLocalValue("conversation_session_id", newConversationSessionId);
     setConversationSessionId(newConversationSessionId);
-  }, [setLocalValue]);
+  }, [resetQuery]);
+
+  useEffect(() => {
+    if (!conversationId) {
+      createConversation();
+    } else {
+      fetchConversation({ sessionId: conversationId });
+    }
+  }, [createConversation, conversationId, fetchConversation]);
 
   useEffect(() => {
     fetchConversationSessions();
   }, [fetchConversationSessions]);
-
-  useEffect(() => {
-    const newLocalSessionId = generateSessionId();
-    setLocalValue("conversation_session_id", newLocalSessionId);
-    setConversationSessionId(newLocalSessionId);
-  }, [setLocalValue]);
 
   return (
     <ConversationContext.Provider

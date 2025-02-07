@@ -10,5 +10,4 @@ export interface AgentCallPayload {
   message?: string;
   session_id: string;
   images?: string[];
-  user_id: string;
 }

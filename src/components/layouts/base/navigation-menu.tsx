@@ -1,5 +1,6 @@
 "use client";
 
+import Icon from "@/components/common/icon";
 import {
   SidebarMenu,
   SidebarMenuBadge,
@@ -37,9 +38,17 @@ export default function NavigationMenu() {
                   navigationItem.path === pathname &&
                     "bg-gradient-to-r from-cyan-400 via-cyan-100 to-cyan-200 bg-clip-text text-transparent",
                 )}>
-                <navigationItem.icon
+                {/* <navigationItem.icon
                   className={cn(
                     "size-6 min-w-4 max-w-6",
+                    navigationItem.path === pathname && "text-cyan-400",
+                  )}
+                /> */}
+                <Icon
+                  icon={navigationItem.icon}
+                  size={24}
+                  className={cn(
+                    "min-w-4 max-w-6",
                     navigationItem.path === pathname && "text-cyan-400",
                   )}
                 />

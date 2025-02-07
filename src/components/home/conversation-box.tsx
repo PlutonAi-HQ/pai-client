@@ -2,7 +2,7 @@
 
 import MarkdownFormat from "../common/markdown-format";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import agentAvatar from "@/assets/images/agent-avatar.webp";
+import agentAvatar from "@/assets/svgs/agent-avatar.svg";
 import { useConversation } from "@/hooks/use-conversation";
 import { cn } from "@/lib/utils";
 import { getInitials } from "@/utils";
@@ -40,7 +40,7 @@ export default function ConversationBox() {
           {/* Agent avatar */}
           {msg.role === "assistant" && (
             <Image
-              src={agentAvatar.src}
+              src={agentAvatar}
               alt="agent avt"
               width={40}
               height={40}
