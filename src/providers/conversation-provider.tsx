@@ -58,8 +58,8 @@ export const ConversationProvider = ({
 
       try {
         setIsFetchingConversation(true);
+        if (!SERVER_URL) throw new Error("Server URL are not defined");
         const serverUrl = `${SERVER_URL}/agent/history?session_id=${sessionId}`;
-        if (!serverUrl) throw new Error("Server URL are not defined");
 
         const response = await fetch(serverUrl, {
           headers: {
