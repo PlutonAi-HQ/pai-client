@@ -107,3 +107,7 @@ export function formatWalletAddress(address: string): string {
   if (address.length <= 8) return address;
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
 }
+
+export function isEmptyString(str?: string): boolean {
+  return !str || str.trim() === "";
+}
