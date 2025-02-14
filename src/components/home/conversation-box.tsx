@@ -115,7 +115,10 @@ export default function ConversationBox() {
           <MarkdownFormat>{answeringText}</MarkdownFormat>
         </div>
       )}
-      <div ref={messagesEndRef} />
+      <div
+        className="hidden"
+        ref={messagesEndRef}
+      />
     </div>
   );
 }

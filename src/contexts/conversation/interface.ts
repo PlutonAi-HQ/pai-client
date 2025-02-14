@@ -1,13 +1,13 @@
-import { Conversation, ConversationSession } from "@/interfaces/conversation";
+import { ConversationContent, Conversation } from "@/interfaces/conversation";
 
 export interface ConversationContextValue {
-  conversation: Conversation[];
+  conversation: ConversationContent[];
   isThinking: boolean;
   isFetchingConversation: boolean;
   isFetchingConversationSessions: boolean;
   isAnswering: boolean;
   answeringText: string | null;
-  conversationSessions: ConversationSession[][] | ConversationSession[];
+  conversationSessions: Omit<Conversation, "data">[];
   conversationId: string | undefined | null;
   fetchConversation: ({ sessionId }: { sessionId: string }) => void;
   submitUserInput: ({

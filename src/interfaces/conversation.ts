@@ -1,16 +1,16 @@
 import { ConversationRole } from "@/types/conversation";
 
-export interface ConversationSession {
-  role: ConversationRole;
+export interface Conversation {
+  title: string;
   session_id: string;
-  content: string;
+  data: ConversationContent[];
+  created_at: Date;
 }
 
-export interface Conversation {
+export interface ConversationContent {
   role: ConversationRole;
   content: string;
   images?: string[];
-  session_id?: string;
 }
 
 export interface ActionSuggestion {
@@ -21,4 +21,10 @@ export interface ActionSuggestion {
 export interface Intergration {
   title: string;
   description: string;
+}
+
+export interface AgentCallPayload {
+  message?: string;
+  session_id: string;
+  images?: string[];
 }

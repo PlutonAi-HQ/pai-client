@@ -1,10 +1,13 @@
 "use client";
 
-import { AgentCallPayload, ConversationPayload } from "@/apis/agent";
 import { SERVER_URL } from "@/configs/env.config";
 import { ConversationContext } from "@/contexts/conversation";
 import useFileUpload from "@/hooks/use-file-upload";
-import { Conversation, ConversationSession } from "@/interfaces/conversation";
+import {
+  ConversationContent,
+  Conversation,
+  AgentCallPayload,
+} from "@/interfaces/conversation";
 import { generateSessionId, handleStreamEventData } from "@/utils";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -13,7 +16,7 @@ import { ReactNode, useCallback, useEffect, useState } from "react";
 export const ConversationProvider = ({
   children,
 }: Readonly<{ children: ReactNode }>) => {
-  const [conversation, setConversation] = useState<Conversation[]>([]);
+  const [conversation, setConversation] = useState<ConversationContent[]>([]);
   const [isFetchingConversation, setIsFetchingConversation] =
     useState<boolean>(true);
   const [isFetchingConversationSessions, setIsFetchingConversationSessions] =
@@ -27,7 +30,7 @@ export const ConversationProvider = ({
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("conversation");
   const [conversationSessions, setConversationSessions] = useState<
-    ConversationSession[][] | ConversationSession[]
+    Omit<Conversation, "data">[]
   >([]);
 
   const { data: session } = useSession();
@@ -52,30 +55,28 @@ export const ConversationProvider = ({
     async ({ sessionId }: { sessionId: string }) => {
       if (!session?.user?.email) return;
       setConversationSessionId(sessionId);
-      const payload: ConversationPayload = {
-        session_id: sessionId,
-      };
 
       try {
         setIsFetchingConversation(true);
-        const serverUrl = `${SERVER_URL}/agent/history`;
+        const serverUrl = `${SERVER_URL}/agent/history?session_id=${sessionId}`;
         if (!serverUrl) throw new Error("Server URL are not defined");
 
         const response = await fetch(serverUrl, {
-          method: "POST",
           headers: {
             "Content-Type": "application/json",
             accept: "application/json",
             Authorization: `Bearer ${session?.accessToken}`,
           },
-          body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
           throw new Error(`Failed to fetch. Status: ${response.status}`);
         }
 
-        const conversation: Conversation[] = await response.json();
+        const parsedResponse: Conversation = await response.json();
+
+        const conversation: ConversationContent[] = parsedResponse.data;
+
         if (!conversation || conversation.length === 0) {
           throw new Error("No conversation data found");
         }
@@ -100,37 +101,47 @@ export const ConversationProvider = ({
     ],
   );
 
-  const fetchConversationSessions = useCallback(async () => {
-    if (!session) return;
-    try {
-      setIsFetchingConversationSessions(true);
-      const serverUrl = `${SERVER_URL}/agent/history`;
-      if (!serverUrl) throw new Error("Server URL are not defined");
+  const fetchConversationSessions = useCallback(
+    async ({
+      limit = 15,
+      offset = 0,
+    }: { limit?: number; offset?: number } = {}) => {
+      if (!session) return;
+      try {
+        setIsFetchingConversationSessions(true);
+        if (!SERVER_URL) throw new Error("SERVER_URL is not defined");
+        const serverUrl = `${SERVER_URL}/agent/history?limit=${limit}&offset=${offset}`;
 
-      const response = await fetch(serverUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-        body: JSON.stringify({}),
-      });
+        const response = await fetch(serverUrl, {
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        });
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch. Status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch. Status: ${response.status}`);
+        }
+
+        const parsedResponse: Conversation[] = await response.json();
+
+        const conversationSessions: Omit<Conversation, "data">[] =
+          parsedResponse.map(({ session_id, created_at, title }) => ({
+            session_id,
+            created_at,
+            title,
+          }));
+
+        setConversationSessions(conversationSessions);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setIsFetchingConversationSessions(false);
       }
-
-      const conversationSessions: ConversationSession[][] =
-        await response.json();
-
-      setConversationSessions(conversationSessions);
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setIsFetchingConversationSessions(false);
-    }
-  }, [session, setIsFetchingConversationSessions, setConversationSessions]);
+    },
+    [session, setIsFetchingConversationSessions, setConversationSessions],
+  );
 
   const submitUserInput = useCallback(
     async ({ message, images }: { message?: string; images?: File[] }) => {
@@ -200,12 +211,12 @@ export const ConversationProvider = ({
           setAnsweringText(result);
         }
 
-        setIsAnswering(false);
-        setAnsweringText(null);
         setConversation((prev) => [
           ...prev,
           { role: "assistant", content: result },
         ]);
+        setIsAnswering(false);
+        setAnsweringText(null);
 
         if (conversation.length === 0) {
           await fetchConversationSessions();

@@ -102,6 +102,7 @@ export default function MarkdownFormat(props: Options) {
         a(props) {
           return (
             <a
+              target="_blank"
               className="text-[#3FCBFA] hover:underline"
               {...props}
             />
